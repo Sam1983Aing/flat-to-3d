@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exploded Axo</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sketch.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="grain"></div>
+<div id="cad-frame" aria-hidden="true">
+  <i class="c tl"></i><i class="c tr"></i><i class="c bl"></i><i class="c br"></i>
+  <span class="reg reg-t">SCALE // CALIBRATED METRIC</span>
+  <span class="reg reg-r">TECTONIC ASSEMBLY // ORTHO-PERSP</span>
+</div>
+<svg id="leaders"></svg>
+<div id="labels"></div>
+<div id="ui">
+  <header class="top">
+    <div class="brand">
+      <b id="brand"></b>
+      <span class="brand-sep">//</span>
+      <span class="dwg-badge" id="dwgBadge">AXO.04</span>
+      <span id="brandSub"></span>
+    </div>
+    <div class="dir-switch" id="dirSwitch" role="navigation" aria-label="Drawing direction">
+      <a href="?dir=a" data-dir="a"><b>01</b><span>THE BOARD</span></a>
+      <a href="?dir=b" data-dir="b"><b>02</b><span>UNFOLDED ROOM</span></a>
+      <a href="?dir=c" data-dir="c"><b>03</b><span>FLOOR BY FLOOR</span></a>
+    </div>
+    <nav><span id="nav"></span><a class="pill" id="cta" href="#scroll"></a></nav>
+  </header>
+  <section id="hero">
+    <div class="kicker" id="kicker"></div>
+    <h1 id="h1"></h1>
+    <p id="lede"></p>
+    <dl id="spec"></dl>
+  </section>
+  <div id="caption"></div>
+  <div id="legend"></div>
+  <div id="cad-map" aria-label="Interactive CAD radar">
+    <div class="cm-head">
+      <span id="cm-lbl">AXO // POS 14.2, 0.2M</span>
+      <span id="cm-scale">1:100</span>
+    </div>
+    <svg id="cm-svg" viewBox="-8.6 -4.6 17.8 9.2" aria-hidden="true">
+      <g id="cm-zones">
+        <rect class="cm-zone" data-stop="loft" data-p="0.89" data-tag="03 // OAK LOFT +3.20M" x="-7.4" y="-3.5" width="3.7" height="7.0"/>
+        <rect class="cm-zone" data-stop="living" data-p="0.80" data-tag="02 // LIVING & HEARTH" x="-3.7" y="-3.5" width="5.2" height="7.0"/>
+        <rect class="cm-zone" data-stop="dining" data-p="0.71" data-tag="01 // DINING TABLE" x="1.5" y="-3.5" width="4.4" height="7.0"/>
+        <rect class="cm-zone" data-stop="porch" data-p="0.62" data-tag="PORCH // +0.33M" x="5.9" y="-3.5" width="1.9" height="7.0"/>
+      </g>
+      <path id="cm-plan" d="M-7.4 -3.5 H7.4 V3.5 H-7.4 Z M-3.7 -3.5 V3.5 M5.9 -3.5 V3.5 M-7.4 0 H-3.7 M-2.9 -3.4 H3.1 V-2.75 H-2.9 Z M1.7 -0.25 H3.9 V0.75 H1.7 Z M-2.9 1.0 H-0.6 V1.9 H-2.9 Z" fill="none" stroke="#f2efe7" stroke-width="0.22" opacity="0.72" pointer-events="none"/>
+      <polygon id="cm-cone" points="6.5,0.2 3.2,1.6 3.2,-1.2" fill="rgba(232,93,4,0.28)" stroke="#e85d04" stroke-width="0.18" pointer-events="none"/>
+      <circle id="cm-dot" cx="6.5" cy="0.2" r="0.65" fill="#e85d04" pointer-events="none"/>
+    </svg>
+    <div class="cm-stops" id="cm-stops">
+      <button type="button" class="cm-btn" data-stop="axo" data-p="0.18" data-tag="AXO STACK // 01-06">AXO</button>
+      <button type="button" class="cm-btn" data-stop="porch" data-p="0.62" data-tag="PORCH // +0.33M">PORCH</button>
+      <button type="button" class="cm-btn" data-stop="dining" data-p="0.71" data-tag="01 // DINING">DINING</button>
+      <button type="button" class="cm-btn" data-stop="living" data-p="0.80" data-tag="02 // LIVING">LIVING</button>
+      <button type="button" class="cm-btn" data-stop="loft" data-p="0.89" data-tag="03 // LOFT">LOFT</button>
+      <button type="button" class="cm-btn" data-stop="ridge" data-p="0.98" data-tag="04 // PANORAMA">RIDGE</button>
+    </div>
+  </div>
+  <footer class="bottom">
+    <span class="hint-wrap"><i class="hint-dot"></i><span id="hint"></span></span>
+    <span class="cam-readout" id="camReadout">PROJ // 1.5° AXO</span>
+    <span id="counter"></span>
+  </footer>
+</div>
+<div id="loader">
+  <div class="lhead"><span>PLOTTER // HP-7585B</span><span id="lpen">PEN 0.35MM</span></div>
+  <span id="ltext"></span>
+  <i><b id="lbar"></b></i>
+</div>
+<div id="fade"></div>
+<div id="scroll"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

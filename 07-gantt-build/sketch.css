@@ -1,0 +1,540 @@
+:root {
+  --paper: #f2efe7;
+  --paper-2: #e7e2d6;
+  --ink: #1d1c19;
+  --ink-2: rgba(29, 28, 25, 0.68);
+  --ink-3: rgba(29, 28, 25, 0.18);
+  --ink-4: rgba(29, 28, 25, 0.08);
+  --accent: #e85d04;
+  --sans: 'Chakra Petch', sans-serif;
+  --display: 'Chakra Petch', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; overflow: hidden;
+  background: var(--paper); color: var(--ink);
+  user-select: none; -webkit-user-select: none;
+}
+body {
+  font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+#stage, #stage canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#hud { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ Viewport CAD Registration Brackets & Brand Badge */
+#cad-hud { position: fixed; inset: 10px; pointer-events: none; z-index: 5; }
+#cad-hud .ch-c { position: absolute; width: 14px; height: 14px; border-color: rgba(29, 28, 25, 0.42); border-style: solid; }
+#cad-hud .tl { left: 0; top: 0; border-width: 1.5px 0 0 1.5px; }
+#cad-hud .tr { right: 0; top: 0; border-width: 1.5px 1.5px 0 0; }
+#cad-hud .bl { left: 0; bottom: 0; border-width: 0 0 1.5px 1.5px; }
+#cad-hud .br { right: 0; bottom: 0; border-width: 0 1.5px 1.5px 0; }
+
+.brand-badge {
+  display: inline-flex;
+  align-items: baseline;
+  font: 700 14px/1 var(--display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 8px 13px;
+  white-space: nowrap;
+}
+.brand-badge::before { content: '[ '; color: var(--accent); }
+.brand-badge::after { content: ' // CPM.08 ]'; color: var(--accent); font-weight: 500; font-size: 11px; margin-left: 2px; }
+
+/* ------------------------------------------------------------------ Interactive CAD Telemetry Bar */
+.cad-bar {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  z-index: 20;
+  pointer-events: auto;
+  display: flex;
+  align-items: stretch;
+  background: rgba(242, 239, 231, 0.94);
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(29, 28, 25, 0.12);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cad-bar.center-top {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 24px;
+}
+.cad-bar .grp {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--ink-3);
+}
+.cad-bar .grp:last-child { border-right: 0; }
+.cad-bar .grp-lbl {
+  padding: 0 9px;
+  color: var(--ink-2);
+  font-size: 9.5px;
+  border-right: 1px solid var(--ink-3);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  background: var(--ink-4);
+}
+.cad-btn {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--ink-3);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 9px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.cad-btn:last-child { border-right: 0; }
+.cad-btn:hover { background: rgba(29, 28, 25, 0.09); }
+.cad-btn.on {
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+.cad-btn.play-btn {
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 78px;
+  text-align: center;
+}
+.cad-btn.play-btn.on {
+  background: var(--accent);
+  color: #fff;
+}
+.cad-scrub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+}
+.cad-scrub input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 96px;
+  height: 3px;
+  background: var(--ink-3);
+  outline: none;
+  cursor: ew-resize;
+}
+.cad-scrub input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 9px;
+  height: 15px;
+  background: var(--accent);
+  border: 1px solid var(--ink);
+  cursor: ew-resize;
+}
+.cad-scrub .wk-readout {
+  min-width: 64px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------ 10 Section Sweep Style Room / Phase Callout Card */
+.room-card {
+  position: absolute;
+  bottom: 22px;
+  left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(29, 28, 25, 0.93);
+  color: var(--paper);
+  padding: 13px 17px;
+  border-left: 3px solid var(--accent);
+  z-index: 12;
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 420px;
+}
+.room-card.split-vp {
+  left: calc(40% + 24px);
+}
+.room-card .lv {
+  font: 600 10px var(--mono);
+  letter-spacing: 0.14em;
+  color: #ff7b29;
+  text-transform: uppercase;
+}
+.room-card b {
+  font: 600 26px/1.02 var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--paper);
+}
+.room-card .nt {
+  font: 400 10px/1.45 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 231, 0.82);
+}
+.room-tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(242, 239, 231, 0.16);
+  flex-wrap: wrap;
+}
+.room-tab {
+  appearance: none;
+  background: rgba(242, 239, 231, 0.08);
+  border: 1px solid rgba(242, 239, 231, 0.22);
+  color: rgba(242, 239, 231, 0.82);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 7px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.room-tab:hover {
+  background: rgba(232, 93, 4, 0.28);
+  border-color: #ff7b29;
+  color: #fff;
+}
+.room-tab.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ A · Top-Left Hero Header + Full-Width Bottom Programme Dock */
+.prog-hero {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  z-index: 12;
+  pointer-events: auto;
+  max-width: 540px;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.prog-hero.inside-dim {
+  opacity: 0.92;
+}
+.prog-hero .top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.prog-hero .dwg-tag {
+  border: 1.5px solid var(--ink);
+  padding: 5px 10px 4px;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(242, 239, 231, 0.92);
+  letter-spacing: 0.1em;
+}
+.prog-hero h1 {
+  font: 600 clamp(26px, 2.75vw, 44px)/0.96 var(--display);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+.prog-hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+  background: rgba(232, 93, 4, 0.1);
+  padding: 0 8px;
+  border-left: 3px solid var(--accent);
+}
+.prog-hero .meta {
+  font-size: 9.5px;
+  color: var(--ink-2);
+  line-height: 1.45;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 4px 9px;
+  background: rgba(242, 239, 231, 0.88);
+  border-left: 2px solid var(--ink);
+}
+.prog-hero .meta span + span::before { content: '//'; margin: 0 0.55em; color: var(--ink-3); }
+.prog-hero .meta b { color: var(--ink); font-weight: 600; }
+
+.prog {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 16px;
+  height: 224px;
+  background: rgba(242, 239, 231, 0.96);
+  border: 1.5px solid var(--ink);
+  box-shadow: 0 -4px 24px rgba(29, 28, 25, 0.08);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 18px;
+  padding: 14px 18px 12px;
+  pointer-events: auto;
+  z-index: 14;
+}
+.prog.full {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  padding: 38px 56px 34px;
+  border: 0;
+  background: var(--paper);
+}
+.prog .prog-side {
+  width: 320px;
+  flex-shrink: 0;
+  background: rgba(29, 28, 25, 0.95);
+  color: var(--paper);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.prog .prog-side .side-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.prog .prog-side .count {
+  font: 600 32px/0.92 var(--display);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--paper);
+}
+.prog .prog-side .count small {
+  font-family: var(--mono);
+  font-size: 0.36em;
+  color: rgba(242, 239, 231, 0.65);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+.prog .prog-side .date-badge {
+  font: 600 9.5px/1 var(--mono);
+  color: #ff7b29;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.prog .prog-side .side-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+.prog .prog-side .lv {
+  font: 600 9.5px/1.2 var(--mono);
+  letter-spacing: 0.12em;
+  color: #ff7b29;
+  text-transform: uppercase;
+}
+.prog .prog-side .title {
+  font: 600 22px/1.02 var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--paper);
+}
+.prog .prog-side .spec-line {
+  font: 400 9.5px/1.38 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(242, 239, 231, 0.82);
+}
+.prog .prog-side .room-tabs {
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.prog .prog-side .room-tab {
+  padding: 4px 6px;
+  font-size: 8.5px;
+}
+
+.prog .top {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 10.5px; color: var(--ink-2);
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--ink);
+}
+.prog .top .dwg-tag {
+  border: 1.5px solid var(--ink);
+  padding: 5px 10px 4px;
+  color: var(--ink);
+  font-weight: 600;
+  background: var(--paper-2);
+  letter-spacing: 0.1em;
+}
+.prog.full h1 {
+  font: 600 clamp(44px, 5.2vw, 92px)/0.98 var(--display);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin: 26px 0 12px;
+}
+.prog h1 em {
+  font-style: normal;
+  color: var(--accent);
+  background: rgba(232, 93, 4, 0.1);
+  padding: 0 8px;
+  border-left: 3px solid var(--accent);
+}
+.prog .meta {
+  font-size: 10px; color: var(--ink-2); line-height: 1.6;
+  display: flex; flex-wrap: wrap; align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--ink-3);
+  border-bottom: 1px solid var(--ink-3);
+}
+.prog .meta span + span::before { content: '//'; margin: 0 0.65em; color: var(--ink-3); }
+.prog .meta b { color: var(--ink); font-weight: 600; }
+
+.prog .chart {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  cursor: ew-resize;
+  pointer-events: auto;
+}
+.prog.full .chart { margin-top: 12px; }
+.prog .chart svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.gantt-row { cursor: pointer; }
+.gantt-row:hover .row-bg { fill: rgba(232, 93, 4, 0.08); }
+
+.prog .foot {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1.5px solid var(--ink);
+}
+.prog.full .foot .hint {
+  font-size: 11px; color: var(--ink); display: flex; gap: 12px; align-items: center;
+}
+.prog.full .foot .hint i { width: 3px; height: 32px; background: var(--accent); display: block; }
+
+/* ------------------------------------------------------------------ B · The Sheet: 1:1 Site Telemetry */
+.corner {
+  position: absolute; font-size: 10.5px;
+  background: rgba(242, 239, 231, 0.94);
+  border: 1.5px solid var(--ink);
+  padding: 10px 14px;
+  box-shadow: 2px 2px 0 rgba(29, 28, 25, 0.1);
+}
+.corner.tl { top: 24px; left: 28px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.corner.tr { top: 24px; right: 28px; text-align: right; }
+.corner.bl { bottom: 24px; left: 28px; pointer-events: auto; }
+.corner.br { bottom: 24px; right: 28px; text-align: right; }
+.word {
+  font: 700 15px/1 var(--display);
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+.big-date {
+  font: 600 36px/0.95 var(--display);
+  letter-spacing: -0.01em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.chip {
+  display: inline-block; background: var(--accent); color: #fff;
+  padding: 2px 7px 2px; font-weight: 600; margin-left: 4px;
+}
+
+/* ------------------------------------------------------------------ C · The Site Camera */
+.cam .corner {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: none;
+}
+.cam .tl, .cam .tr {
+  color: var(--paper);
+  background: rgba(29, 28, 25, 0.88);
+  padding: 9px 13px 8px;
+}
+.cam .stamp {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 18px; font-weight: 500; letter-spacing: 0.05em;
+}
+.cam .rec {
+  display: inline-block; width: 8px; height: 8px;
+  background: var(--accent); margin-right: 8px; vertical-align: 1px;
+}
+.cam .frame {
+  position: absolute; inset: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+.cam .frame::before, .cam .frame::after {
+  content: ''; position: absolute; width: 22px; height: 22px; border: 2px solid #fff;
+}
+.cam .frame::before { left: -1px; top: -1px; border-right: 0; border-bottom: 0; }
+.cam .frame::after { right: -1px; bottom: -1px; border-left: 0; border-top: 0; }
+
+.band {
+  position: absolute; left: 16px; right: 16px; bottom: 16px; height: 184px;
+  background: rgba(242, 239, 231, 0.96);
+  border: 1.5px solid var(--ink);
+  display: flex; padding: 14px 20px 12px;
+  pointer-events: auto;
+}
+.band .now {
+  width: 266px;
+  padding: 12px 16px;
+  margin-right: 18px;
+  background: rgba(29, 28, 25, 0.93);
+  color: var(--paper);
+  border-left: 3px solid var(--accent);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.band .now .wk {
+  font: 600 38px/0.92 var(--display);
+  letter-spacing: -0.01em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--paper);
+}
+.band .now .wk small {
+  font-family: var(--mono);
+  font-size: 0.36em; color: #ff7b29; font-weight: 600; letter-spacing: 0.08em;
+}
+.band .now .ph { font-size: 10.5px; line-height: 1.45; color: var(--paper); }
+.band .now .ph b { color: #ff7b29; font-weight: 600; }
+.band .chart { flex: 1; cursor: ew-resize; position: relative; }
+.band svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* The last frame: you are inside */
+.inside .tl, .inside .tr {
+  color: var(--paper);
+  background: rgba(29, 28, 25, 0.93);
+  border: 1px solid rgba(242, 239, 231, 0.25);
+  border-left: 3px solid var(--accent);
+}
+
+@media (max-width: 1180px) {
+  .cad-bar .grp-cam { display: none; }
+  .room-card { min-width: 220px; max-width: 310px; padding: 10px 14px; }
+  .room-card b { font-size: 20px; }
+}

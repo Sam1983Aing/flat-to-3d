@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" class="locked">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kiln &amp; Course</title>
+  <meta name="description" content="A 1:20 detail elevation of a relief brick wall. The drawing promises the relief, the sun proves it. Direction C of The Elevation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../engine/page.css" />
+</head>
+<body>
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="loader" id="loader">
+    <p>DWG // D-104 &nbsp;·&nbsp; Kiln &amp; Course</p>
+    <p class="soft">Plotting masonry detail 1:20 &nbsp;<span id="loadPct">0%</span></p>
+  </div>
+
+  <header class="topbar">
+    <a class="mark" href="#">Kiln &amp; Course<small>Relief Brick · D-104</small></a>
+    <a class="pill" href="#">Order a sample panel</a>
+  </header>
+
+  <section class="hero on-card" aria-label="KC-06 Diaper, detail elevation">
+    <p class="kicker mono">KC-06 Diaper <span class="soft">&nbsp;·&nbsp; Detail Elevation 1:20</span></p>
+    <h1><span class="mask"><span>The shadow</span></span><span class="mask"><span>is the <em>product.</em></span></span></h1>
+  </section>
+
+  <div class="pins" id="pins" aria-hidden="true"></div>
+
+  <div class="tb" aria-hidden="true">
+    <div><span>Product</span>KC-06 Diaper</div>
+    <div><span>Drawing</span>Detail elevation</div>
+    <div><span>Scale</span>1 : 20</div>
+    <div><span>Sheet</span>D-104</div>
+  </div>
+
+  <div class="hint" aria-hidden="true">Scroll <i></i></div>
+  <div id="beats"></div>
+  <main class="track" id="track"></main>
+
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+    } }
+  </script>
+  <script type="module" src="page.js"></script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casa Graó · POCHÉ</title>
+<meta name="description" content="POCHÉ, architects in Palma. Casa Graó, a house that steps down a hillside in Deià, told through its section.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2efe7;
+    --ink: #1d1c19;
+    --mute: #655f55;
+    --accent: #e85d04;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --display: 'Chakra Petch', sans-serif;
+    --side: 28px;
+  }
+  html { background: var(--paper); }
+  html.locked, html.locked body { overflow: hidden; }
+  body { margin: 0; color: var(--ink); font: 500 13px/1.5 var(--display); -webkit-font-smoothing: antialiased; overscroll-behavior: none; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  .track { height: 620vh; }
+  .grain { position: fixed; inset: 0; pointer-events: none; opacity: 0.28; mix-blend-mode: multiply; z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.42 0 0 0 0 0.37 0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+
+  /* Viewport CAD registration brackets */
+  #cad-hud { position: fixed; inset: 12px; pointer-events: none; z-index: 4; }
+  #cad-hud .ch-c { position: absolute; width: 14px; height: 14px; border-color: rgba(29, 28, 25, 0.45); border-style: solid; }
+  #cad-hud .tl { left: 0; top: 0; border-width: 1.5px 0 0 1.5px; }
+  #cad-hud .tr { right: 0; top: 0; border-width: 1.5px 1.5px 0 0; }
+  #cad-hud .bl { left: 0; bottom: 0; border-width: 0 0 1.5px 1.5px; }
+  #cad-hud .br { right: 0; bottom: 0; border-width: 0 1.5px 1.5px 0; }
+
+  /* text gets its own layer: soft paper bands so the drawing never runs through the header or the captions */
+  .band { position: fixed; left: 0; right: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.8s; }
+  .band.top { top: 0; height: 78px; background: linear-gradient(var(--paper) 62px, rgba(242,239,231,0)); z-index: 4; }
+  .band.bot { bottom: 0; height: 62px; background: linear-gradient(rgba(242,239,231,0), var(--paper) 20px); }
+  .words-in .band { opacity: 1; }
+  .words-in .band.bot { opacity: calc(1 - var(--closing, 0)); }
+
+  .scale { right: var(--side); bottom: 100px; font-size: 9px; opacity: 0; background: var(--paper); padding: 6px 8px 4px; border: 1px solid rgba(29,28,25,0.22); }
+  .scale i { display: flex; margin-bottom: 4px; }
+  .scale i s { display: block; width: var(--m, 38px); height: 4px; border: 1px solid var(--ink); box-sizing: border-box; }
+  .scale i s:first-child { width: var(--m, 38px); }
+  .scale i s:nth-child(odd) { background: var(--ink); }
+  .scale u { position: relative; display: block; height: 11px; width: calc(var(--m, 38px) * 5); text-decoration: none; }
+  .scale u span { position: absolute; top: 0; transform: translateX(-50%); }
+  .scale u span:nth-child(2) { left: var(--m, 38px); }
+  .scale u span:nth-child(3) { left: 100%; transform: translateX(-60%); }
+  .mono { font-family: var(--mono); letter-spacing: 0.12em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+  .ui { position: fixed; z-index: 2; }
+
+  header.ui { left: var(--side); right: var(--side); top: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 5; }
+  .mark {
+    font: 700 14px/1 var(--display); letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--ink); color: var(--paper); padding: 8px 13px;
+  }
+  .mark::before { content: '[ '; color: var(--accent); }
+  .mark::after { content: ' // SEC.01 ]'; color: var(--accent); font-weight: 500; font-size: 11px; }
+  .mark span { display: none; }
+  nav { display: flex; gap: 22px; align-items: center; font-size: 10.5px; }
+  nav a { color: var(--ink); text-decoration: none; font-weight: 500; }
+  .btn {
+    border: 1.5px solid var(--ink); border-radius: 0; padding: 8px 14px;
+    background: rgba(242, 239, 231, 0.94); font-weight: 600; letter-spacing: 0.12em;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .menu { display: none; }
+
+  .dirs {
+    left: 50%; top: 20px; transform: translateX(-50%); display: flex; gap: 0;
+    border: 1.5px solid var(--ink); border-radius: 0; overflow: hidden;
+    font-size: 10px; background: rgba(242, 239, 231, 0.92); z-index: 5;
+  }
+  .dirs a { color: var(--ink); text-decoration: none; padding: 7px 13px; white-space: nowrap; font-weight: 500; }
+  .dirs a + a { border-left: 1px solid var(--ink); }
+  .dirs i { font-style: normal; opacity: 0.72; }
+  .dirs a.on { background: var(--ink); color: var(--paper); }
+  .dirs a.on i { color: #ff7b29; opacity: 1; }
+
+  .hero { left: var(--side); top: 88px; width: 560px; pointer-events: none; visibility: hidden; }
+  .words-in .hero { visibility: visible; }
+  .hero .kicker { font-size: 10.5px; color: var(--mute); font-weight: 500; }
+  .hero h1 {
+    margin: 12px 0 16px; font: 600 60px/0.96 var(--display);
+    letter-spacing: -0.01em; text-transform: uppercase;
+  }
+  .hero h1 em {
+    font-style: normal; color: var(--accent);
+    background: rgba(232, 93, 4, 0.1); padding: 0 8px; border-left: 3px solid var(--accent);
+  }
+  .hero p {
+    margin: 0; max-width: 340px; font: 500 10.5px/1.6 var(--mono);
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink);
+  }
+  /* the words arrive line by line, each sliding up out of its own mask */
+  .line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+  .line > span { display: inline-block; transform: translateY(125%); opacity: 0; transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.1, 1), opacity 0.35s; }
+  .kicker.line > span, p.line > span { transform: translateY(135%); }
+  .words-in .line > span { transform: none; opacity: 1; }
+  .words-in .line:nth-child(2) > span { transition-delay: 0.08s; }
+  .words-in h1 .line:nth-child(2) > span { transition-delay: 0.16s; }
+  .words-in p.line > span { transition-delay: 0.3s; }
+
+  .block {
+    right: var(--side); bottom: 26px; display: grid; grid-template-columns: repeat(4, auto);
+    border: 1.5px solid var(--ink); font-size: 9.5px; background: var(--paper);
+    opacity: 0; transition: opacity 0.6s 0.6s;
+  }
+  .block div { padding: 8px 12px; border-left: 1px solid var(--ink); }
+  .block div:first-child { border-left: 0; }
+  .block b { display: block; font-weight: 500; color: var(--accent); font-size: 8.5px; margin-bottom: 2px; }
+  .built .block { opacity: 1; }
+
+  .hint {
+    left: 50%; bottom: 26px; transform: translateX(-50%);
+    font: 500 10px var(--mono); letter-spacing: 0.2em; text-transform: uppercase;
+    background: rgba(242, 239, 231, 0.9); padding: 5px 10px; border: 1px solid rgba(29, 28, 25, 0.25);
+    opacity: 0; transition: opacity 0.6s 0.4s; white-space: nowrap;
+  }
+  .built .hint { opacity: 1; }
+
+  #hud {
+    left: var(--side); bottom: 26px; font: 500 10px var(--mono); letter-spacing: 0.14em;
+    text-transform: uppercase; background: var(--ink); color: var(--paper);
+    padding: 7px 13px; opacity: 0; transition: opacity 0.6s; white-space: nowrap;
+  }
+  #hud b { color: #ff7b29; font-weight: 600; }
+  .built #hud { opacity: 1; }
+  header, .dirs { opacity: 0; transition: opacity 0.7s 0.2s; }
+  .words-in header, .words-in .dirs { opacity: 1; }
+
+  #caption {
+    left: var(--side); bottom: 62px; font: 600 19px/1.15 var(--display);
+    text-transform: uppercase; letter-spacing: 0.02em; max-width: 520px;
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 0.5s, transform 0.6s cubic-bezier(0.2, 0.7, 0.1, 1);
+    pointer-events: none;
+  }
+  #caption.show { opacity: 1; transform: none; }
+
+  /* Room callout badge styled like 10 Section Sweep v4 */
+  #room {
+    left: var(--side); top: 88px; max-width: 410px;
+    padding: 14px 18px 16px;
+    background: rgba(29, 28, 25, 0.93); color: var(--paper);
+    border-left: 3px solid var(--accent); border-radius: 0;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.45s, transform 0.6s cubic-bezier(0.2, 0.7, 0.1, 1);
+    pointer-events: none;
+  }
+  #room.show { opacity: 1; transform: none; }
+  #room .k { display: block; font: 600 10px var(--mono); letter-spacing: 0.14em; color: #ff7b29; margin-bottom: 5px; }
+  #room b { display: block; font: 600 32px/1 var(--display); text-transform: uppercase; letter-spacing: 0.01em; color: var(--paper); margin-bottom: 8px; }
+  #room .m { display: block; font: 400 10px/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: rgba(242, 239, 231, 0.84); max-width: 370px; }
+
+  /* Live 3D Axonometric CAD Section Radar */
+  #cad-key {
+    right: var(--side); bottom: 26px; width: 244px;
+    border: 1.5px solid var(--ink); border-top: 2.5px solid var(--accent);
+    background: transparent;
+    opacity: 0; pointer-events: none; user-select: none;
+    transition: opacity 0.35s ease; z-index: 3;
+  }
+  #cad-key.show { opacity: 1; pointer-events: auto; }
+  #cad-key .ck-top {
+    background: rgba(29, 28, 25, 0.94); color: var(--paper);
+    padding: 6px 9px; font: 500 8.5px/1.2 var(--mono); letter-spacing: 0.1em;
+    text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;
+  }
+  #cad-key .ck-top i { font-style: normal; color: #ff7b29; font-weight: 600; }
+  #cad-key .ck-vp {
+    width: 100%; height: 118px; background: transparent;
+    position: relative; border-top: 1px solid rgba(29, 28, 25, 0.3); border-bottom: 1px solid rgba(29, 28, 25, 0.3);
+  }
+  #cad-key .ck-nav {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    background: rgba(29, 28, 25, 0.94);
+  }
+  #cad-key .ck-nav button {
+    appearance: none; border: 0; border-right: 1px solid rgba(242, 239, 231, 0.14);
+    background: transparent; color: rgba(242, 239, 231, 0.72);
+    font: 500 8px/1.15 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 6px 2px; cursor: pointer; text-align: center; transition: background 0.15s, color 0.15s;
+  }
+  #cad-key .ck-nav button:last-child { border-right: 0; }
+  #cad-key .ck-nav button:hover { background: rgba(232, 93, 4, 0.28); color: var(--paper); }
+  #cad-key .ck-nav button.on { background: var(--accent); color: var(--paper); font-weight: 600; }
+
+  /* the closing section: the studio, after the drawing */
+  #closing { position: relative; z-index: 3; background: var(--paper); border-top: 1.5px solid var(--ink); }
+  #closing .in { max-width: 1240px; margin: 0 auto; padding: 120px var(--side) 80px; }
+  #closing .kick { font-size: 10.5px; color: var(--mute); font-weight: 500; }
+  #closing h2 {
+    font: 600 82px/0.95 var(--display); letter-spacing: -0.01em;
+    text-transform: uppercase; margin: 20px 0 28px;
+  }
+  #closing h2 em {
+    font-style: normal; color: var(--accent);
+    background: rgba(232, 93, 4, 0.1); padding: 0 10px; border-left: 3px solid var(--accent);
+  }
+  #closing .lede { font: 500 13px/1.7 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; max-width: 600px; color: var(--ink); margin: 0 0 64px; }
+  #closing .facts { display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); font-size: 10px; margin-bottom: 96px; }
+  #closing .facts div { padding: 16px 14px 18px 0; }
+  #closing .facts div + div { padding-left: 14px; border-left: 1px solid rgba(29,28,25,0.28); }
+  #closing .facts b { display: block; font-weight: 600; color: var(--accent); font-size: 9px; margin-bottom: 8px; }
+  #closing h3 { font-size: 10.5px; font-weight: 600; margin: 0 0 22px; color: var(--ink); }
+  #closing .work { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-bottom: 120px; }
+  #closing .work figure { margin: 0; }
+  #closing .work svg { display: block; width: 100%; height: auto; background: #f6f3ec; border: 1.5px solid var(--ink); }
+  #closing .work figcaption { display: flex; justify-content: space-between; font-size: 9.5px; margin-top: 10px; }
+  #closing .work figcaption span { color: var(--mute); text-align: right; }
+  #closing .cta .go { line-height: 1.9; }
+  #closing .cta { display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: end; border-top: 1.5px solid var(--ink); padding-top: 48px; }
+  #closing .cta p { font: 600 52px/0.98 var(--display); text-transform: uppercase; letter-spacing: -0.01em; margin: 0; }
+  #closing .cta .go { justify-self: end; text-align: right; font-size: 10.5px; }
+  #closing .cta .go a {
+    display: inline-block; color: var(--paper); background: var(--ink);
+    border: 1.5px solid var(--ink); border-radius: 0;
+    padding: 14px 22px; text-decoration: none; margin-bottom: 18px;
+    font: 600 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  #closing .cta .go a::after { content: ' \2192'; color: #ff7b29; margin-left: 6px; }
+  #closing footer { display: flex; justify-content: space-between; max-width: 1240px; margin: 0 auto; padding: 22px var(--side) 30px; font-size: 9.5px; color: var(--mute); border-top: 1px solid rgba(29,28,25,0.22); }
+
+  #loader { position: fixed; inset: 0; z-index: 6; background: var(--paper); display: grid; place-items: center; transition: opacity 0.6s; }
+  #loader.gone { opacity: 0; pointer-events: none; }
+  #loader .box { width: 260px; border: 1.5px solid var(--ink); padding: 16px 18px; background: var(--paper); }
+  #loader .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 10px; color: var(--mute); }
+  #loader .lv { display: flex; align-items: center; gap: 8px; color: var(--accent); font-size: 13px; font-weight: 600; }
+  #loader .lv i { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 9px solid var(--accent); }
+  #loader .rule { height: 2px; background: rgba(29,28,25,0.18); margin-top: 12px; }
+  #loader #bar { height: 2px; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+
+  .instant .line > span, .instant .block, .instant .hint, .instant #hud, .instant #caption, .instant #loader, .instant header, .instant .dirs, .instant .band, .instant #room, .instant #cad-key { transition: none !important; }
+  @media (max-width: 700px) {
+    #cad-hud { inset: 8px; }
+    #cad-key { display: none; }
+    #room { top: 66px; right: var(--side); padding: 10px 14px 12px; }
+    #room b { font-size: 24px; margin-bottom: 6px; }
+    #room .m { font-size: 8.5px; }
+    #closing .in { padding: 80px var(--side) 56px; }
+    #closing h2 { font-size: 48px; }
+    #closing .lede { font-size: 11px; margin-bottom: 40px; }
+    #closing .facts { grid-template-columns: repeat(2, 1fr); margin-bottom: 64px; }
+    #closing .facts div:nth-child(odd) { padding-left: 0; border-left: 0; }
+    #closing .facts div:nth-child(n+3) { border-top: 1px solid rgba(29,28,25,0.25); }
+    #closing .work { grid-template-columns: 1fr; gap: 26px; margin-bottom: 72px; }
+    #closing .cta { grid-template-columns: 1fr; }
+    #closing .cta p { font-size: 36px; }
+    #closing .cta .go { justify-self: start; text-align: left; }
+    #closing footer { flex-direction: column; gap: 6px; }
+    :root { --side: 18px; }
+    header { top: 16px; }
+    header nav a:not(.menu) { display: none; }
+    .dirs a:not(.on) i { display: none; }
+    .menu { display: inline; }
+    .dirs { top: auto; bottom: 16px; font-size: 8.5px; }
+    .dirs a { padding: 6px 9px; }
+    .hero { top: 68px; width: auto; right: var(--side); }
+    .hero h1 { font-size: 40px; margin: 10px 0 12px; }
+    .hero p { font-size: 9.5px; max-width: 280px; }
+    .block, .hint { display: none; }
+    #hud { bottom: 56px; font-size: 8.5px; padding: 5px 9px; }
+    #caption { bottom: 86px; font-size: 16px; right: var(--side); }
+    .scale { display: none; }
+    .band.top { height: 64px; background: linear-gradient(var(--paper) 50px, rgba(242,239,231,0)); }
+    .band.bot { right: 0; height: 132px; }
+  }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="ov"></canvas>
+<div id="cad-hud" aria-hidden="true"><div class="ch-c tl"></div><div class="ch-c tr"></div><div class="ch-c bl"></div><div class="ch-c br"></div></div>
+<div class="band top"></div><div class="band bot"></div>
+<div class="grain"></div>
+<div class="track"></div>
+<section id="closing">
+  <div class="in">
+    <div class="kick mono">POCHÉ · Architects · Palma</div>
+    <h2>Bring us<br>a <em>slope</em>.</h2>
+    <p class="lede">We are five architects in Palma. We design houses on difficult ground, and we draw every one of them in section first. On a hill, the section is where a house works or doesn't.</p>
+    <h3 class="mono">Casa Graó · Deià, Mallorca</h3>
+    <div class="facts mono">
+      <div><b>Site</b>Deià, Mallorca</div><div><b>Built</b>312 m²</div><div><b>Levels</b>Three, 6.60 m of fall</div>
+      <div><b>Stair</b>32 risers of 206 mm</div><div><b>Structure</b>Concrete, local stone</div><div><b>Finished</b>2026</div>
+    </div>
+    <h3 class="mono">Selected work</h3>
+    <div class="work">
+      <figure><svg viewBox="0 0 400 240" role="img" aria-label="Section of Ca'n Pou, a courtyard house on two terraces"><defs><pattern id="h1" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#1d1c19" stroke-width="0.7"/></pattern><linearGradient id="f1" gradientUnits="userSpaceOnUse" x1="0" y1="110" x2="0" y2="240"><stop offset="0" stop-color="#fff" stop-opacity="0.9"/><stop offset="0.75" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="m1"><rect width="400" height="240" fill="url(#f1)"/></mask></defs>
+<path d="M0 112 L36 112 L36 150 L176 150 L176 192 L400 192 L400 240 L0 240 Z" fill="url(#h1)" mask="url(#m1)"/>
+<path d="M0 112 L36 112 M150 150 L176 150 L176 192 L400 192" fill="none" stroke="#1d1c19" stroke-width="1.6"/>
+<g fill="none" stroke="#1d1c19" stroke-width="0.7"><rect x="50" y="112" width="20" height="26"/><rect x="124" y="112" width="18" height="26"/><rect x="118" y="70" width="22" height="20"/>
+<path d="M52 146 h6 v-5 h6 v-5 h6 v-5 h6 v-5 h6 v-5 h6"/><path d="M200 192 v-34 h56 v34 M196 158 h64"/></g>
+<g fill="#1d1c19"><rect x="34" y="62" width="8" height="132"/><rect x="146" y="62" width="8" height="90"/><rect x="34" y="146" width="120" height="6"/><rect x="42" y="100" width="44" height="5"/><rect x="108" y="100" width="40" height="5"/><rect x="30" y="56" width="58" height="7"/><rect x="104" y="56" width="54" height="7"/>
+<rect x="174" y="150" width="6" height="44"/><rect x="172" y="188" width="12" height="6"/><rect x="30" y="190" width="16" height="6"/></g>
+<g fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><path d="M97 146 L97 131.6" stroke-width="1.6"/><circle cx="92.05" cy="128.9" r="6.75"/><circle cx="101.5" cy="127.55" r="7.2"/><circle cx="97" cy="123.5" r="7.2"/><circle cx="97" cy="128.45" r="5.3999999999999995" stroke="none"/></g><g fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><path d="M318 192 L318 169.6" stroke-width="1.6"/><circle cx="310.3" cy="165.4" r="10.5"/><circle cx="325.0" cy="163.3" r="11.200000000000001"/><circle cx="318" cy="157.0" r="11.200000000000001"/><circle cx="318" cy="164.7" r="8.4" stroke="none"/></g><path d="M372 134 C367.824 148.5 364.344 168.8 366.084 187.36 Q368.52 192 372 192 Q375.48 192 377.916 187.36 C379.656 168.8 376.176 148.5 372 134 Z" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"/><g transform="translate(66,146) scale(1.1)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g transform="translate(128,146) scale(1.1)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g transform="translate(232,192) scale(1.1)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g transform="translate(291,192) scale(1.1)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g fill="#e85d04" font-family="IBM Plex Mono, monospace" font-size="6.5"><path d="M392 150 l-3.5 -5 h7 z"/><text x="398" y="149">+3.40</text><line x1="370" y1="150" x2="392" y2="150" stroke="#e85d04" stroke-width="0.5" stroke-dasharray="3 2"/></g></svg><figcaption class="mono">Ca'n Pou <span>Sóller · 2024 · a courtyard house on two terraces</span></figcaption></figure>
+      <figure><svg viewBox="0 0 400 240" role="img" aria-label="Section of Torre Baixa, a stone tower on a steep slope"><defs><pattern id="h2" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#1d1c19" stroke-width="0.7"/></pattern><linearGradient id="f2" gradientUnits="userSpaceOnUse" x1="0" y1="110" x2="0" y2="240"><stop offset="0" stop-color="#fff" stop-opacity="0.9"/><stop offset="0.75" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="m2"><rect width="400" height="240" fill="url(#f2)"/></mask></defs>
+<path d="M0 96 L118 96 L170 132 L170 206 L240 206 L240 176 L400 222 L400 240 L0 240 Z" fill="url(#h2)" mask="url(#m2)"/>
+<path d="M0 96 L118 96 L170 132 M240 176 L400 222" fill="none" stroke="#1d1c19" stroke-width="1.6"/>
+<g fill="none" stroke="#1d1c19" stroke-width="0.7"><rect x="188" y="40" width="16" height="20"/><rect x="214" y="76" width="14" height="18"/><rect x="188" y="112" width="16" height="18"/><rect x="214" y="150" width="14" height="18"/>
+<path d="M180 202 h9 v-6 h9 v-6 h9 v-6 h9 v-6 h9 v-6 M231 166 h-9 v-6 h-9 v-6 h-9 v-6 h-9 v-6 h-9 v-6 M180 130 h9 v-6 h9 v-6 h9 v-6 h9 v-6 h9 v-6 M231 94 h-9 v-6 h-9 v-6 h-9 v-6 h-9 v-6 h-9 v-6"/></g>
+<g fill="#1d1c19"><rect x="170" y="26" width="10" height="182"/><rect x="232" y="26" width="10" height="160"/><rect x="170" y="202" width="72" height="8"/><rect x="180" y="166" width="52" height="5"/><rect x="180" y="130" width="52" height="5"/><rect x="180" y="94" width="52" height="5"/><rect x="180" y="58" width="52" height="5"/><rect x="164" y="20" width="84" height="8"/>
+<rect x="128" y="94" width="42" height="4"/></g>
+<g fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><path d="M320 199 L320 179.8" stroke-width="1.6"/><circle cx="313.4" cy="176.2" r="9.0"/><circle cx="326.0" cy="174.4" r="9.600000000000001"/><circle cx="320" cy="169.0" r="9.600000000000001"/><circle cx="320" cy="175.6" r="7.199999999999999" stroke="none"/></g><path d="M66 44 C62.256 57.0 59.135999999999996 75.2 60.696 91.84 Q62.88 96 66 96 Q69.12 96 71.304 91.84 C72.864 75.2 69.744 57.0 66 44 Z" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"/><g transform="translate(146,94) scale(1.0)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g transform="translate(206,202) scale(1.0)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g transform="translate(214,130) scale(1.0)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g fill="#e85d04" font-family="IBM Plex Mono, monospace" font-size="6.5"><path d="M392 94 l-3.5 -5 h7 z"/><text x="398" y="93">+18.20</text><line x1="370" y1="94" x2="392" y2="94" stroke="#e85d04" stroke-width="0.5" stroke-dasharray="3 2"/></g></svg><figcaption class="mono">Torre Baixa <span>Valldemossa · 2023 · a stone tower on a steep path</span></figcaption></figure>
+      <figure><svg viewBox="0 0 400 240" role="img" aria-label="Section of Es Racó, a house under a garden roof"><defs><pattern id="h3" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#1d1c19" stroke-width="0.7"/></pattern><linearGradient id="f3" gradientUnits="userSpaceOnUse" x1="0" y1="110" x2="0" y2="240"><stop offset="0" stop-color="#fff" stop-opacity="0.9"/><stop offset="0.75" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="m3"><rect width="400" height="240" fill="url(#f3)"/></mask></defs>
+<path d="M0 104 L78 104 L184 132 L184 142 L214 142 L214 132 L300 150 L300 192 L404 192 L404 240 L0 240 Z" fill="url(#h3)" mask="url(#m3)"/>
+<path d="M0 104 L78 104 L178 130 M220 131 L300 150 M346 192 L400 192" fill="none" stroke="#1d1c19" stroke-width="1.6"/>
+<rect x="306" y="181" width="40" height="9" fill="#bcd0d1" stroke="#1d1c19" stroke-width="0.7"/>
+<g fill="none" stroke="#1d1c19" stroke-width="0.7"><line x1="300" y1="152" x2="300" y2="190"/><line x1="296" y1="152" x2="296" y2="190"/><rect x="112" y="156" width="40" height="22"/><rect x="236" y="158" width="36" height="20"/>
+<path d="M100 104 q4 -10 8 0 M132 112 q5 -12 10 0 M248 136 q4 -9 8 0 M268 141 q3 -8 6 0"/></g>
+<g fill="#1d1c19"><rect x="78" y="104" width="8" height="90"/><rect x="78" y="188" width="228" height="7"/><rect x="86" y="140" width="98" height="7"/><rect x="214" y="140" width="92" height="7"/><rect x="182" y="132" width="4" height="10"/><rect x="212" y="132" width="4" height="10"/>
+<rect x="302" y="181" width="4" height="13"/><rect x="346" y="181" width="4" height="13"/><rect x="302" y="190" width="48" height="4"/></g>
+<g fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><path d="M199 188 L199 170.4" stroke-width="1.6"/><circle cx="192.95" cy="167.1" r="8.25"/><circle cx="204.5" cy="165.45" r="8.8"/><circle cx="199" cy="160.5" r="8.8"/><circle cx="199" cy="166.55" r="6.6" stroke="none"/></g><path d="M42 58 C38.688 69.5 35.928 85.6 37.308 100.32 Q39.24 104 42 104 Q44.76 104 46.692 100.32 C48.072 85.6 45.312 69.5 42 58 Z" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"/><g transform="translate(132,188) scale(1.05)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g transform="translate(256,188) scale(1.05)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g transform="translate(368,192) scale(1.05)" fill="#f2efe7" stroke="#1d1c19" stroke-width="0.85"><circle cx="0" cy="-15.6" r="2.05"/><path d="M-3 -13.2 h6 l-0.6 6.6 l0.35 6.6 h-1.9 l-0.85 -5.5 l-0.85 5.5 h-1.9 l0.35 -6.6 z"/></g><g fill="#e85d04" font-family="IBM Plex Mono, monospace" font-size="6.5"><path d="M392 150 l-3.5 -5 h7 z"/><text x="398" y="149">+4.10</text><line x1="370" y1="150" x2="392" y2="150" stroke="#e85d04" stroke-width="0.5" stroke-dasharray="3 2"/></g></svg><figcaption class="mono">Es Racó <span>Pollença · 2022 · a house under its garden</span></figcaption></figure>
+    </div>
+    <div class="cta">
+      <p>Start with<br>a section.</p>
+      <div class="go mono"><a href="#">Start a project</a><br>studio@poche.example<br>+34 971 000 000<br>Palma de Mallorca · 39.57° N, 2.65° E</div>
+    </div>
+  </div>
+  <footer class="mono"><span>POCHÉ Architects · Palma</span><span>Casa Graó · Section A–A · drawn live in three.js</span><span>Work · Studio · Journal</span></footer>
+</section>
+
+<header class="ui">
+  <div class="mark">POCHÉ<span>ARCHITECTS · PALMA</span></div>
+  <nav class="mono"><a href="#">Work</a><a href="#">Studio</a><a href="#">Journal</a><a class="btn" href="#">Start a project</a><a class="menu" href="#">Menu</a></nav>
+</header>
+<nav class="dirs ui mono" aria-label="Directions">
+  <a href="?dir=a" data-dir="a">A<i> · Open the lens</i></a><a href="?dir=c" data-dir="c">C<i> · Down the stair</i></a>
+</nav>
+<section class="hero ui">
+  <div class="kicker mono line"><span>Casa Graó · Deià, Mallorca · 2026</span></div>
+  <h1><span class="line"><span>The <em>cut</em> is</span></span><span class="line"><span>the house.</span></span></h1>
+  <p class="line"><span>Three levels stepping down a hillside above the sea, joined by one stair. Scroll into the section.</span></p>
+</section>
+<div class="hint ui mono fade-on-scroll once">Scroll to open the lens</div>
+<div class="scale ui mono fade-on-scroll"><i><s></s><s></s><s></s><s></s><s></s></i><u><span>0</span><span>1</span><span>5 m</span></u></div>
+<div class="block ui mono fade-on-scroll">
+  <div><b>Project</b>Casa Graó</div>
+  <div><b>Drawing</b><span id="tb-drawing">Section A–A</span></div>
+  <div><b>Scale</b>1:100</div>
+  <div><b>Sheet</b><span id="tb-sheet">A-301</span></div>
+</div>
+<div id="caption" class="ui"></div>
+<div id="room" class="ui"></div>
+<div id="hud" class="ui mono"></div>
+<div id="cad-key" class="ui" aria-label="Interactive 3D Section Radar">
+  <div class="ck-top"><span id="ck-lbl">SEC A-A // CUT Z -4.60M</span><i id="ck-lens">LENS 64°</i></div>
+  <div class="ck-vp" id="ck-vp"></div>
+  <div class="ck-nav">
+    <button type="button" data-idx="0">01<br>Stair</button>
+    <button type="button" data-idx="1">02<br>Kitchen</button>
+    <button type="button" data-idx="2">03<br>Patio</button>
+    <button type="button" data-idx="3">04<br>Living</button>
+    <button type="button" data-idx="4">05<br>Pool</button>
+  </div>
+</div>
+
+<div id="loader">
+  <div class="box">
+    <div class="row mono"><span>Casa Graó</span><span>Section A–A</span></div>
+    <div class="row mono" style="margin-top:14px"><span class="lv"><i></i><span id="count">±0.00</span></span><span>Levels</span></div>
+    <div class="rule"><div id="bar"></div></div>
+  </div>
+</div>
+<script type="module" src="./page.js"></script>
+</body>
+</html>

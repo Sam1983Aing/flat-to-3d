@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cota</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2efe7;
+    --ink: #1d1c19;
+    --accent: #e85d04;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --display: 'Chakra Petch', sans-serif;
+    --sans: 'Chakra Petch', sans-serif;
+    --g: 28px;
+  }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  body { overscroll-behavior: none; -webkit-font-smoothing: antialiased; }
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+  #ov { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  #ov text { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; fill: var(--ink); }
+  #ov .room { font-size: 9.5px; letter-spacing: .16em; font-weight: 500; }
+  #ov .sun { fill: var(--accent); font-weight: 500; }
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #hud > * { position: absolute; }
+
+  /* Viewport CAD registration brackets */
+  #cad-hud { display: block; inset: 12px; pointer-events: none; z-index: 2; }
+  #cad-hud .ch-c { position: absolute; width: 14px; height: 14px; border-color: rgba(29, 28, 25, 0.45); border-style: solid; }
+  #cad-hud .tl { left: 0; top: 0; border-width: 1.5px 0 0 1.5px; }
+  #cad-hud .tr { right: 0; top: 0; border-width: 1.5px 1.5px 0 0; }
+  #cad-hud .bl { left: 0; bottom: 0; border-width: 0 0 1.5px 1.5px; }
+  #cad-hud .br { right: 0; bottom: 0; border-width: 0 1.5px 1.5px 0; }
+
+  .brand {
+    left: var(--g); top: 20px;
+    font: 700 14px/1 var(--display); letter-spacing: .18em; text-transform: uppercase;
+    background: var(--ink); color: var(--paper); padding: 8px 13px; opacity: 0;
+  }
+  .brand::before { content: '[ '; color: var(--accent); }
+  .brand::after { content: ' // CAD.04 ]'; color: var(--accent); font-weight: 500; font-size: 11px; }
+
+  .cta {
+    right: var(--g); top: 20px;
+    font: 600 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase;
+    background: rgba(242, 239, 231, 0.94); border: 1.5px solid var(--ink);
+    padding: 8px 14px; border-radius: 0; opacity: 0; pointer-events: auto;
+    color: var(--ink); text-decoration: none;
+  }
+
+  .head {
+    left: var(--g); top: 80px;
+    font: 600 52px/0.98 var(--display); letter-spacing: -.01em; text-transform: uppercase; margin: 0;
+  }
+  .head .ln { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+  .head .ln > span { display: block; transform: translateY(125%); opacity: 0; }
+  .head em {
+    font-style: normal; color: var(--accent);
+    background: rgba(232, 93, 4, 0.1); padding: 0 8px; border-left: 3px solid var(--accent);
+  }
+
+  .sub {
+    left: var(--g); top: 202px;
+    font: 500 10.5px/1.6 var(--mono); letter-spacing: .06em;
+    max-width: 310px; text-transform: uppercase; opacity: 0; margin: 0;
+  }
+
+  .chip {
+    left: var(--g); bottom: 26px;
+    font: 500 10px var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    background: var(--ink); color: var(--paper); padding: 7px 13px;
+    opacity: 0; white-space: nowrap; z-index: 2;
+  }
+  .chip b { font-weight: 600; color: #ff7b29; }
+
+  .hint {
+    left: 50%; bottom: 24px;
+    font: 500 10px var(--mono); letter-spacing: .2em; text-transform: uppercase;
+    opacity: 0; white-space: nowrap;
+    background: rgba(242, 239, 231, 0.88); padding: 5px 10px; border: 1px solid rgba(29, 28, 25, 0.2);
+  }
+
+  #tb {
+    right: var(--g); bottom: 26px; width: 272px; height: 112px;
+    font: 400 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase;
+  }
+  #tb .frame {
+    position: absolute; inset: 0;
+    border: 1.5px solid var(--ink); background: var(--paper);
+    clip-path: inset(0 0 0 100%);
+  }
+  #tb .t1 { position: absolute; left: 14px; top: 12px; font: 600 15px var(--display); letter-spacing: .16em; white-space: nowrap; }
+  #tb .rule { position: absolute; left: 0; right: 0; top: 40px; border-top: 1px solid var(--ink); }
+  #tb .vr { position: absolute; left: 176px; top: 40px; bottom: 0; border-left: 1px solid var(--ink); }
+  #tb .rows { position: absolute; left: 14px; top: 52px; line-height: 18px; }
+  #tb .kp { position: absolute; left: 186px; top: 47px; width: 76px; height: 58px; }
+  #tb .fade { opacity: 0; }
+  #tb .stamp {
+    position: absolute; right: 96px; top: 50px; padding: 4px 8px;
+    border: 1.5px solid var(--accent); color: var(--accent);
+    font: 600 11px var(--mono); letter-spacing: .16em; text-transform: uppercase;
+    opacity: 0; transform: rotate(-8deg); background: rgba(242, 239, 231, 0.85);
+  }
+
+  #kp { position: fixed; left: 0; top: 0; width: 260px; height: 159px; overflow: visible; pointer-events: none; }
+  #kp path, #kp line { fill: none; }
+  #kp text { font-family: var(--mono); fill: var(--accent); }
+  #lcap {
+    position: fixed; left: 50%; top: 50%; transform: translate(-50%, 124px);
+    text-align: center; font: 500 10.5px/1.9 var(--mono); letter-spacing: .2em;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  #lcap span { color: var(--accent); font-weight: 600; }
+  #track { height: 2800vh; }
+
+  /* Room callout badge */
+  .room {
+    left: var(--g); bottom: 64px; opacity: 0;
+    display: flex; flex-direction: column; gap: 4px;
+    background: rgba(29, 28, 25, 0.93); color: var(--paper);
+    padding: 14px 18px; border-left: 3px solid var(--accent);
+    z-index: 2;
+  }
+  .room .r-txt { display: flex; flex-direction: column; gap: 4px; }
+  .room .lv { font: 600 10px var(--mono); letter-spacing: .14em; color: #ff7b29; }
+  .room b { font: 600 32px/1 var(--display); text-transform: uppercase; letter-spacing: .01em; color: var(--paper); }
+  .room .nt { font: 400 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: rgba(242, 239, 231, 0.82); }
+
+  /* Live CAD section radar */
+  #cad-map {
+    display: block; right: var(--g); bottom: 26px; width: 204px; height: 100px;
+    background: rgba(29, 28, 25, 0.93); color: var(--paper); border: 1px solid var(--accent);
+    padding: 8px 10px; font: 500 8.5px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase;
+    opacity: 0; z-index: 3; pointer-events: none; user-select: none;
+  }
+  #cad-map.interactive { pointer-events: auto; }
+  #cad-map svg { width: 100%; height: 70px; display: block; margin-top: 4px; overflow: visible; }
+  #cad-map .cm-zone { fill: rgba(232, 93, 4, 0.0); stroke: none; cursor: pointer; transition: fill .15s ease; }
+  #cad-map .cm-zone.active { fill: rgba(232, 93, 4, 0.16); stroke: rgba(232, 93, 4, 0.45); stroke-width: 0.22; }
+  #cad-map .cm-zone:hover { fill: rgba(232, 93, 4, 0.32); stroke: #ff7b29; stroke-width: 0.3; }
+
+  /* End call to action */
+  .end { left: var(--g); top: 80px; visibility: hidden; pointer-events: auto; }
+  .end h2 { margin: 0; font: 600 52px/0.98 var(--display); letter-spacing: -.01em; text-transform: uppercase; }
+  .end h2 .ln { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+  .end h2 .ln > span { display: block; transform: translateY(110%); }
+  .end em {
+    font-style: normal; color: var(--accent);
+    background: rgba(232, 93, 4, 0.1); padding: 0 8px; border-left: 3px solid var(--accent);
+  }
+  .end .sub2 { margin: 18px 0 0 2px; font: 500 10.5px/1.6 var(--mono); letter-spacing: .06em; max-width: 330px; text-transform: uppercase; opacity: 0; }
+  .end .btn {
+    display: inline-block; margin: 22px 0 0 0;
+    font: 600 11px var(--mono); letter-spacing: .14em; text-transform: uppercase;
+    color: var(--paper); background: var(--ink); padding: 12px 18px;
+    border: 1.5px solid var(--ink); border-radius: 0; text-decoration: none; opacity: 0;
+  }
+  .end .btn i { font-style: normal; color: #ff7b29; margin-left: 8px; }
+
+  @media (max-aspect-ratio: 9/10) {
+    :root { --g: 18px; }
+    #cad-hud { inset: 8px; }
+    #ov text { font-size: 8px; letter-spacing: .06em; }
+    #ov .room { font-size: 7.5px; letter-spacing: .12em; }
+    .brand { top: 16px; font-size: 11.5px; padding: 6px 10px; }
+    .brand::after { font-size: 9.5px; }
+    .cta { top: 16px; font-size: 9px; padding: 6px 10px; }
+    .head { top: 60px; font-size: 36px; }
+    .sub { left: var(--g); top: 146px; font-size: 9px; max-width: 260px; }
+    .chip { bottom: 124px; font-size: 8.5px; padding: 5px 9px; }
+    .hint { bottom: 18px; font-size: 8.5px; padding: 4px 8px; }
+    #tb { left: var(--g); right: var(--g); width: auto; bottom: 44px; height: 70px; font-size: 8.5px; }
+    #tb .t1 { left: 10px; top: 8px; font-size: 12px; }
+    #tb .rule { top: 28px; }
+    #tb .vr { left: auto; right: 74px; top: 28px; }
+    #tb .rows { left: 10px; top: 33px; line-height: 12px; }
+    #tb .kp { left: auto; right: 8px; top: 31px; width: 58px; height: 36px; }
+    #tb .stamp { right: 84px; top: 30px; font-size: 9px; padding: 3px 6px; }
+    .room { bottom: 158px; padding: 10px 13px; max-width: calc(100vw - 64px); }
+    .room b { font-size: 22px; }
+    .room .lv, .room .nt { font-size: 8px; }
+    #cad-map { right: var(--g); bottom: 20px; width: 142px; height: 74px; padding: 6px 8px; font-size: 7.5px; }
+    #cad-map svg { height: 50px; }
+    .end { top: 60px; }
+    .end h2 { font-size: 36px; }
+    .end .sub2 { font-size: 9.5px; max-width: 280px; margin-top: 12px; }
+    .end .btn { margin-top: 14px; font-size: 10px; padding: 10px 15px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<svg id="ov" aria-hidden="true"></svg>
+<div id="hud">
+  <div id="cad-hud"><div class="ch-c tl"></div><div class="ch-c tr"></div><div class="ch-c bl"></div><div class="ch-c br"></div></div>
+  <div class="brand">Cota</div>
+  <a class="cta" href="#start">Start a project</a>
+  <h1 class="head"><span class="ln"><span>See the house</span></span><span class="ln"><span><em>in section.</em></span></span></h1>
+  <p class="sub">A house on a slope, cut open at A-A. Scroll and walk in through the cut.</p>
+  <div class="chip"></div>
+  <div class="hint">Scroll to open the lens</div>
+  <div class="room">
+    <div class="r-txt"><span class="lv"></span><b></b><span class="nt"></span></div>
+  </div>
+  <div id="cad-map">
+    <div id="cm-lbl">SEC A-A // POS 15.6, 1.6M</div>
+    <svg viewBox="1 -9.2 29 14" aria-label="Interactive section radar">
+      <g transform="scale(1,-1)">
+        <rect class="cm-zone" data-stop="The study" data-tag="STUDY +3.20M" x="4" y="3.2" width="6.4" height="4.6"/>
+        <rect class="cm-zone" data-stop="The upper lounge" data-tag="LOUNGE +3.20M" x="10.4" y="3.2" width="4.7" height="4.6"/>
+        <rect class="cm-zone" data-stop="The living room" data-tag="LIVING ±0.00M" x="11" y="0" width="7.3" height="3.2"/>
+        <rect class="cm-zone" data-stop="Over the living room" data-tag="MEZZ +3.20M" x="15.1" y="3.2" width="3.2" height="3.4"/>
+        <rect class="cm-zone" data-stop="The snug" data-tag="SNUG -3.20M" x="4" y="-3.4" width="7" height="3.4"/>
+        <rect class="cm-zone" data-stop="The bedroom" data-tag="BEDROOM -3.20M" x="11" y="-3.4" width="7.3" height="3.4"/>
+        <rect class="cm-zone" data-stop="The lower garden" data-tag="GARDEN -3.20M" x="18.3" y="-4.6" width="10.5" height="4.6"/>
+        <path d="M1.5 0 H4 M4 -3.4 H18.3 V0 H22.5 M18.3 -3.4 H24.5 L29 -4.8 M4 0 H18.3 M4 3.2 H15.1 M10.4 3.2 V7.8 M4 -3.4 V7.8 H15.2 V6.6 H19.5 M18.3 -3.4 V6.6" fill="none" stroke="#f2efe7" stroke-width="0.42" opacity="0.72" pointer-events="none"/>
+        <polygon id="cm-cone" points="15.6,1.6 12.2,3.1 12.2,0.1" fill="rgba(232,93,4,0.28)" stroke="#e85d04" stroke-width="0.24" pointer-events="none"/>
+        <line id="cm-scan" x1="21.8" y1="-4.8" x2="21.8" y2="8.5" stroke="#e85d04" stroke-width="0.5" stroke-dasharray="1 0.8" pointer-events="none"/>
+        <circle id="cm-dot" cx="15.6" cy="1.6" r="1.15" fill="#e85d04" pointer-events="none"/>
+      </g>
+    </svg>
+  </div>
+  <div class="end">
+    <h2><span class="ln"><span>We draw it first.</span></span><span class="ln"><span><em>Then we build it.</em></span></span></h2>
+    <p class="sub2">Cota is a small studio for houses on difficult ground. Every project starts with a section like this one.</p>
+    <a class="btn" href="#start">Start a project<i>&rarr;</i></a>
+  </div>
+  <div id="tb">
+    <div class="frame"></div>
+    <div class="t1 fade">Section A-A</div>
+    <div class="rule fade"></div><div class="vr fade"></div>
+    <div class="rows fade"><div>House on a slope</div><div class="scale">Scale 1:100</div><div>Sheet A-301</div></div>
+    <div class="kp"></div>
+    <div class="stamp">Built 2026</div>
+  </div>
+</div>
+<svg id="kp" viewBox="-0.5 -10.5 27 16.5" aria-hidden="true">
+  <path class="d" pathLength="1" stroke="#1d1c19" data-w="1.4" d="M3.7 -8 H18.3 V4 H3.7 Z"/>
+  <path class="d" pathLength="1" stroke="#1d1c19" data-w="0.9" d="M18.3 -8 H22.5 V1.5 H18.3"/>
+  <path class="d" pathLength="1" stroke="#1d1c19" data-w="0.9" d="M10.4 -7.7 V-5.0 M10.4 -4.0 V3.7 M15.1 -8 V4"/>
+  <path class="d" pathLength="1" stroke="#1d1c19" data-w="0.7" d="M5.5 -7.7 H10.3 V-6.5 H5.5 Z M6.3 -7.7 V-6.5 M7.1 -7.7 V-6.5 M7.9 -7.7 V-6.5 M8.7 -7.7 V-6.5 M9.5 -7.7 V-6.5"/>
+  <line id="kpcut" x1="0.4" y1="0" x2="25.6" y2="0" stroke="#e85d04" data-w="1.4" pathLength="1"/>
+  <g id="kpa0" opacity="0"><path stroke="#e85d04" data-w="1.2" d="M0.4 0 V-2 M-0.25 -1.2 L0.4 -2 L1.05 -1.2"/><text x="0.4" y="-2.7" text-anchor="middle">A</text></g>
+  <g id="kpa1" opacity="0"><path stroke="#e85d04" data-w="1.2" d="M25.6 0 V-2 M24.95 -1.2 L25.6 -2 L26.25 -1.2"/><text x="25.6" y="-2.7" text-anchor="middle">A</text></g>
+</svg>
+<div id="lcap"><div>Section A-A</div><div>Loading <span id="lnum">000</span></div></div>
+<main id="track"></main>
+<script>
+  window.__T0 = performance.now();
+  window.__loader = { p: 0.08 };
+  (function () {
+    const kp = document.getElementById('kp'), ds = kp.querySelectorAll('.d'), cut = document.getElementById('kpcut');
+    const a0 = document.getElementById('kpa0'), a1 = document.getElementById('kpa1'), cap = document.getElementById('lcap'), num = document.getElementById('lnum');
+    const cl = (x) => Math.max(0, Math.min(1, x)), ease = (x) => 1 - Math.pow(1 - cl(x), 3);
+    window.__drawLoader = function (t, p, k, slot) {
+      ds.forEach((d, i) => { const u = ease((t - 0.1 - i * 0.12) / 0.55); d.style.strokeDasharray = '1 1'; d.style.strokeDashoffset = String(1 - u); });
+      cut.style.strokeDasharray = '1 1'; cut.style.strokeDashoffset = String(1 - p);
+      a0.setAttribute('opacity', String(cl((t - 0.55) / 0.25)));
+      a1.setAttribute('opacity', String(cl((p - 0.96) / 0.04)));
+      num.textContent = String(Math.round(p * 100)).padStart(3, '0');
+      const W = innerWidth, H = innerHeight, w0 = Math.min(340, W * 0.7), h0 = w0 * 16.5 / 27;
+      let x = (W - w0) / 2, y = (H - h0) / 2 - 10, w = w0, h = h0;
+      if (k > 0 && slot) { const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; x += (slot.left - x) * e; y += (slot.top - y) * e; w += (slot.width - w) * e; h += (slot.height - h) * e; }
+      kp.style.transform = `translate(${x}px, ${y}px)`; kp.style.width = w + 'px'; kp.style.height = h + 'px';
+      const uu = 27 / w;
+      kp.querySelectorAll('[data-w]').forEach((e) => e.setAttribute('stroke-width', String(e.dataset.w * uu * (1 - 0.25 * k))));
+      kp.querySelectorAll('text').forEach((tx) => tx.setAttribute('font-size', String(Math.max(9, 11 - 2 * k) * uu)));
+      cap.style.opacity = String(1 - cl(k / 0.3));
+    };
+    let first = true;
+    const loop = (function loop() {
+      if (first) { window.__T0 = performance.now(); first = false; }
+      if (window.__mainOwns) return;
+      const t = (performance.now() - window.__T0) / 1000;
+      window.__drawLoader(t, Math.min(window.__loader.p, cl((t - 0.6) / 1.0)), 0, null);
+      requestAnimationFrame(loop);
+    });
+    window.__drawLoader(0, 0, 0, null);
+    requestAnimationFrame(loop);
+  })();
+</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

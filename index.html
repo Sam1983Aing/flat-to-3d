@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flat to 3D</title>
+<meta name="description" content="Seven ways to turn a flat architectural drawing into a 3D scroll experience, in plain three.js.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #141413;
+    --panel: #1d1c19;
+    --paper: #f2efe7;
+    --ink: #f2efe7;
+    --mute: #9a9488;
+    --line: rgba(242, 239, 231, 0.16);
+    --line-strong: rgba(242, 239, 231, 0.34);
+    --accent: #e85d04;
+    --sans: 'Chakra Petch', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --bar-h: 44px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TOP CAD SWITCHER BAR ── */
+  #master-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--bar-h);
+    background: var(--panel);
+    border-bottom: 1px solid var(--line-strong);
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    user-select: none;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  body.bar-collapsed #master-bar {
+    transform: translateY(-100%);
+  }
+
+  .brand-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    padding: 0 14px;
+    border-right: 1px solid var(--line);
+    font: 600 11px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--ink);
+    background: transparent;
+    border-top: 0;
+    border-bottom: 0;
+    border-left: 0;
+  }
+  .brand-cell:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .brand-cell .dot {
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  /* 01..07 Number Strip */
+  .num-strip {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    border-right: 1px solid var(--line);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .num-strip::-webkit-scrollbar { display: none; }
+
+  .demo-btn {
+    appearance: none;
+    border: 0;
+    border-right: 1px solid var(--line);
+    background: transparent;
+    color: var(--mute);
+    padding: 0 11px;
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 500 11px/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.12s, color 0.12s;
+    position: relative;
+  }
+  .demo-btn:last-child { border-right: 0; }
+  .demo-btn .n {
+    font-weight: 600;
+    color: var(--ink);
+    opacity: 0.75;
+  }
+  .demo-btn .lbl {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 11.5px;
+    letter-spacing: 0.01em;
+    display: none;
+  }
+  @media (min-width: 1440px) {
+    .demo-btn .lbl { display: inline; }
+  }
+  .demo-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ink);
+  }
+  .demo-btn.active {
+    background: var(--paper);
+    color: #161513;
+  }
+  .demo-btn.active .n {
+    color: var(--accent);
+    opacity: 1;
+  }
+  .demo-btn.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2.5px;
+    background: var(--accent);
+  }
+
+  /* Active Demo Title + Sub-variants */
+  .active-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    height: 100%;
+    min-width: 0;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .active-meta::-webkit-scrollbar { display: none; }
+
+  .active-title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .active-title .code {
+    font: 600 10px/1 var(--mono);
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  .active-title .name {
+    font: 700 13px/1 var(--sans);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .variant-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding-left: 10px;
+    border-left: 1px solid var(--line);
+  }
+  .var-pill {
+    appearance: none;
+    border: 1px solid var(--line-strong);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--mute);
+    font: 500 10px/1 var(--mono);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 5px 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.12s;
+  }
+  .var-pill:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+  .var-pill.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* Right Controls */
+  .bar-actions {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    margin-left: auto;
+    border-left: 1px solid var(--line);
+  }
+  .act-btn {
+    appearance: none;
+    border: 0;
+    border-right: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    padding: 0 12px;
+    font: 500 10.5px/1 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .act-btn:last-child { border-right: 0; }
+  .act-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .act-btn.on {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* Floating tab when bar is hidden */
+  #show-bar-tab {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 1001;
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-top: 0;
+    padding: 5px 12px;
+    font: 600 10px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  body.bar-collapsed #show-bar-tab {
+    transform: translate(-50%, 0);
+  }
+
+  /* ── STAGE IFRAME ── */
+  #stage-wrap {
+    position: fixed;
+    top: var(--bar-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--paper);
+    transition: top 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  body.bar-collapsed #stage-wrap {
+    top: 0;
+  }
+
+  #stage {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+    background: var(--paper);
+  }
+
+  /* ── ALL-07 SHEET DRAWER / MATRIX OVERLAY ── */
+  #matrix-drawer {
+    position: fixed;
+    top: var(--bar-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(20, 20, 19, 0.96);
+    backdrop-filter: blur(10px);
+    z-index: 950;
+    overflow-y: auto;
+    padding: 28px 32px 48px;
+    display: none;
+  }
+  #matrix-drawer.open {
+    display: block;
+  }
+
+  .matrix-head {
+    max-width: 1360px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 14px;
+  }
+  .matrix-head h2 {
+    margin: 0;
+    font: 700 22px/1.1 var(--sans);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .matrix-head p {
+    margin: 6px 0 0;
+    font: 400 12px/1.4 var(--mono);
+    color: var(--mute);
+  }
+
+  .matrix-grid {
+    max-width: 1360px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 14px;
+  }
+
+  .sheet-card {
+    background: #1e1d1b;
+    border: 1px solid var(--line-strong);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.14s, transform 0.14s;
+    position: relative;
+  }
+  .sheet-card:hover {
+    border-color: var(--ink);
+  }
+  .sheet-card.active {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .sheet-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font: 600 11px/1 var(--mono);
+    color: var(--mute);
+    letter-spacing: 0.1em;
+  }
+  .sheet-card-top .num {
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .sheet-card h3 {
+    margin: 0;
+    font: 700 18px/1.15 var(--sans);
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .sheet-card h3:hover {
+    color: var(--accent);
+  }
+
+  .sheet-card p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #c7c1b5;
+    flex: 1;
+  }
+
+  .sheet-vars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding-top: 6px;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 900px) {
+    .active-meta { display: none; }
+    #matrix-drawer { padding: 18px 16px 36px; }
+  }
+</style>
+</head>
+<body>
+
+<header id="master-bar">
+  <button class="brand-cell" id="toggle-matrix" title="Show all seven techniques">
+    <span class="dot"></span>
+    <span>FLAT TO 3D // 07</span>
+    <span style="color:var(--mute)">[INDEX]</span>
+  </button>
+
+  <nav class="num-strip" id="num-strip" aria-label="Techniques 01 to 07"></nav>
+
+  <div class="active-meta">
+    <div class="active-title">
+      <span class="code" id="cur-code">COTA // SWP-01</span>
+      <span class="name" id="cur-name">Section Sweep</span>
+    </div>
+    <div class="variant-group" id="cur-variants"></div>
+  </div>
+
+  <div class="bar-actions">
+    <button class="act-btn" id="prev-btn" title="Previous Demo">←</button>
+    <button class="act-btn" id="next-btn" title="Next Demo">→</button>
+    <a class="act-btn" id="open-new" href="#" target="_blank" rel="noopener" title="Open current demo in a standalone tab">OPEN ↗</a>
+    <button class="act-btn" id="hide-bar-btn" title="Collapse top switcher bar for full-bleed view">▴ BAR</button>
+  </div>
+</header>
+
+<button id="show-bar-tab" title="Show switcher bar">▾ FLAT TO 3D // 07</button>
+
+<div id="matrix-drawer">
+  <div class="matrix-head">
+    <div>
+      <h2>FLAT TO 3D // SEVEN TECHNIQUES [01 TO 07]</h2>
+      <p>Pick a technique or one of its takes. Each one runs live in your browser. Best on a laptop.</p>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="act-btn on" id="close-matrix" style="padding:8px 14px;">CLOSE SCHEDULE ✕</button>
+    </div>
+  </div>
+  <div class="matrix-grid" id="matrix-grid"></div>
+</div>
+
+<main id="stage-wrap">
+  <iframe id="stage" title="Active Architectural 3D Demo" allow="fullscreen"></iframe>
+</main>
+
+<script>
+const DEMOS = [
+  {
+    "id": "01",
+    "code": "COTA // SWP-01",
+    "title": "Section Sweep",
+    "desc": "A section drawing opens into depth. A scan turns the ink into material and the drawn sun angles into real sunbeams, then you walk in through the cut.",
+    "variants": [
+      {
+        "label": "Demo",
+        "url": "01-section-sweep/index.html"
+      }
+    ]
+  },
+  {
+    "id": "02",
+    "code": "ATELIER 1:100 // MDL-02",
+    "title": "Card Model to Real House",
+    "desc": "A white card model on a desk at night. Dive down to the scale figure and the card turns into the real house, with the desk lamp as its sun.",
+    "variants": [
+      {
+        "label": "Demo",
+        "url": "02-study-model/index.html"
+      }
+    ]
+  },
+  {
+    "id": "03",
+    "code": "SEQUENCE // A-901",
+    "title": "Sequence Sheet Time-Lapse",
+    "desc": "Six drawings of one house, stage by stage. Dive into the first one and walk the site while it goes up, week by week, until handover.",
+    "variants": [
+      {
+        "label": "Demo",
+        "url": "03-sequence-sheet/index.html"
+      }
+    ]
+  },
+  {
+    "id": "04",
+    "code": "POCHÉ // SEC-04",
+    "title": "Sectional Perspective",
+    "desc": "A flat section plots itself. Then the lens opens while the cut keeps its size, and the camera visits each floor from the cut.",
+    "variants": [
+      {
+        "label": "A · Open the lens",
+        "url": "04-sectional-perspective/index.html?dir=a"
+      },
+      {
+        "label": "C · Down the stair",
+        "url": "04-sectional-perspective/index.html?dir=c"
+      }
+    ]
+  },
+  {
+    "id": "05",
+    "code": "ALBION ROW // ELV-05",
+    "title": "Sunlit Elevation",
+    "desc": "A front elevation whose hatching is the real shadow. A sweep turns it into brick, the sun moves, the door opens and you walk in.",
+    "variants": [
+      {
+        "label": "A · One Door",
+        "url": "05-elevation/a-one-door/index.html"
+      },
+      {
+        "label": "B · The Row",
+        "url": "05-elevation/b-the-row/index.html"
+      },
+      {
+        "label": "C · The Face",
+        "url": "05-elevation/c-the-face/index.html"
+      }
+    ]
+  },
+  {
+    "id": "06",
+    "code": "PURLIN // AXO-06",
+    "title": "Exploded Axo Assembly",
+    "desc": "An exploded axo lands layer by layer in building order. Then the lens widens to eye level and you walk inside.",
+    "variants": [
+      {
+        "label": "A · The Board",
+        "url": "06-exploded-axo/index.html?dir=a"
+      },
+      {
+        "label": "B · Unfolded Room",
+        "url": "06-exploded-axo/index.html?dir=b"
+      },
+      {
+        "label": "C · Floor by Floor",
+        "url": "06-exploded-axo/index.html?dir=c"
+      }
+    ]
+  },
+  {
+    "id": "07",
+    "code": "PURLIN // CPM-07",
+    "title": "The Gantt Builds the House",
+    "desc": "Scroll the construction programme and the house builds itself bar by bar, crane and all. Then the front door opens and you walk in.",
+    "variants": [
+      {
+        "label": "A · The Programme",
+        "url": "07-gantt-build/index.html?dir=a"
+      },
+      {
+        "label": "B · 1:1 Site Sheet",
+        "url": "07-gantt-build/index.html?dir=b"
+      },
+      {
+        "label": "C · Site Camera",
+        "url": "07-gantt-build/index.html?dir=c"
+      }
+    ]
+  }
+];
+
+const numStrip = document.getElementById('num-strip');
+const curCode = document.getElementById('cur-code');
+const curName = document.getElementById('cur-name');
+const curVariants = document.getElementById('cur-variants');
+const openNew = document.getElementById('open-new');
+const stage = document.getElementById('stage');
+const matrixDrawer = document.getElementById('matrix-drawer');
+const matrixGrid = document.getElementById('matrix-grid');
+const toggleMatrixBtn = document.getElementById('toggle-matrix');
+
+let activeIdx = 0;
+let activeVarIdx = 0;
+let loadToken = 0;
+
+// Build top strip buttons
+DEMOS.forEach((d, idx) => {
+  const btn = document.createElement('button');
+  btn.className = 'demo-btn';
+  btn.dataset.idx = idx;
+  btn.title = `${d.id} · ${d.title}`;
+  btn.innerHTML = `<span class="n">${d.id}</span><span class="lbl">${d.title}</span>`;
+  btn.addEventListener('click', () => selectDemo(idx, 0));
+  numStrip.appendChild(btn);
+});
+
+// Build matrix grid cards
+DEMOS.forEach((d, idx) => {
+  const card = document.createElement('div');
+  card.className = 'sheet-card';
+  card.dataset.idx = idx;
+
+  const top = document.createElement('div');
+  top.className = 'sheet-card-top';
+  top.innerHTML = `<span class="num">SHEET ${d.id}</span><span>${d.code}</span>`;
+
+  const h3 = document.createElement('h3');
+  h3.textContent = `${d.id} · ${d.title}`;
+  h3.addEventListener('click', () => {
+    selectDemo(idx, 0);
+    setMatrixOpen(false);
+  });
+
+  const p = document.createElement('p');
+  p.textContent = d.desc;
+
+  const vars = document.createElement('div');
+  vars.className = 'sheet-vars';
+  d.variants.forEach((v, vIdx) => {
+    const vp = document.createElement('button');
+    vp.className = 'var-pill';
+    vp.dataset.idx = idx;
+    vp.dataset.vidx = vIdx;
+    vp.textContent = v.label;
+    vp.addEventListener('click', () => {
+      selectDemo(idx, vIdx);
+      setMatrixOpen(false);
+    });
+    vars.appendChild(vp);
+  });
+
+  card.append(top, h3, p, vars);
+  matrixGrid.appendChild(card);
+});
+
+function setMatrixOpen(open) {
+  matrixDrawer.classList.toggle('open', open);
+  toggleMatrixBtn.classList.toggle('on', open);
+}
+
+toggleMatrixBtn.addEventListener('click', () => {
+  setMatrixOpen(!matrixDrawer.classList.contains('open'));
+});
+document.getElementById('close-matrix').addEventListener('click', () => setMatrixOpen(false));
+
+function selectDemo(idx, vIdx = 0, pushHash = true) {
+  activeIdx = (idx + DEMOS.length) % DEMOS.length;
+  const demo = DEMOS[activeIdx];
+  activeVarIdx = Math.max(0, Math.min(vIdx, demo.variants.length - 1));
+  const variant = demo.variants[activeVarIdx];
+  const encodedUrl = encodeURI(variant.url);
+
+  // Update top buttons
+  document.querySelectorAll('.demo-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === activeIdx);
+  });
+
+  // Update active title + variant pills
+  curCode.textContent = demo.code;
+  curName.textContent = demo.title;
+  curVariants.innerHTML = '';
+  demo.variants.forEach((v, i) => {
+    const pill = document.createElement('button');
+    pill.className = 'var-pill' + (i === activeVarIdx ? ' active' : '');
+    pill.textContent = v.label;
+    pill.addEventListener('click', () => selectDemo(activeIdx, i));
+    curVariants.appendChild(pill);
+  });
+
+  // Update matrix cards
+  document.querySelectorAll('.sheet-card').forEach((c, i) => {
+    c.classList.toggle('active', i === activeIdx);
+  });
+  document.querySelectorAll('.sheet-vars .var-pill').forEach(p => {
+    const match = Number(p.dataset.idx) === activeIdx && Number(p.dataset.vidx) === activeVarIdx;
+    p.classList.toggle('active', match);
+  });
+
+  openNew.href = encodedUrl;
+
+  if (pushHash) {
+    const hash = activeVarIdx > 0 ? `#${demo.id}:${activeVarIdx}` : `#${demo.id}`;
+    history.replaceState(null, '', hash);
+  }
+
+  // Release previous WebGL context cleanly before loading next Three.js scene
+  const token = ++loadToken;
+  stage.src = 'about:blank';
+  setTimeout(() => {
+    if (token !== loadToken) return;
+    stage.src = encodedUrl;
+  }, 30);
+}
+
+stage.addEventListener('load', () => {
+  try { stage.contentWindow.focus(); } catch {}
+});
+
+document.getElementById('prev-btn').addEventListener('click', () => selectDemo(activeIdx - 1, 0));
+document.getElementById('next-btn').addEventListener('click', () => selectDemo(activeIdx + 1, 0));
+
+document.getElementById('hide-bar-btn').addEventListener('click', () => {
+  document.body.classList.add('bar-collapsed');
+});
+document.getElementById('show-bar-tab').addEventListener('click', () => {
+  document.body.classList.remove('bar-collapsed');
+});
+
+function parseHash() {
+  const raw = location.hash.replace(/^#/, '').trim();
+  if (!raw) return { idx: 0, vIdx: 0 };
+  const [idPart, vPart] = raw.split(':');
+  const foundIdx = DEMOS.findIndex(d => d.id === idPart.padStart(2, '0'));
+  return {
+    idx: foundIdx >= 0 ? foundIdx : 0,
+    vIdx: vPart ? parseInt(vPart, 10) || 0 : 0
+  };
+}
+
+window.addEventListener('hashchange', () => {
+  const { idx, vIdx } = parseHash();
+  selectDemo(idx, vIdx, false);
+});
+
+// Initialize on 01 (or URL hash if present)
+const init = location.hash ? parseHash() : { idx: 0, vIdx: 0 };
+selectDemo(init.idx, init.vIdx, false);
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atelier 1:100</title>
+<meta name="description" content="A house on a slope, cut from card at 1:100. Scroll down to the little figure.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/page.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body class="locked">
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<div class="hud" aria-hidden="true">
+  <div id="cad-hud"><div class="ch-c tl"></div><div class="ch-c tr"></div><div class="ch-c bl"></div><div class="ch-c br"></div></div>
+  <header class="top">
+    <span class="brand">Atelier 1:100</span>
+    <nav><span>Work</span><span>Studio</span><span>Journal</span></nav>
+    <span class="cta">Start a project</span>
+  </header>
+  <div class="hero">
+    <h1><span class="ln"><span>It starts</span></span><span class="ln accent"><span>on the desk.</span></span></h1>
+    <p class="sub">A house on a slope, cut from card at 1:100. Scroll down to the little figure.</p>
+  </div>
+  <div class="alt">
+    <div class="ruler"><i class="mark"></i></div>
+    <div class="read"><span class="lab">Above the garden</span><span class="cm">34.8 cm</span><span class="eq">on the desk // 1:100</span><span class="m">34.8 m</span><span class="eq">in the house // 1:1</span></div>
+  </div>
+  <div class="scrim"></div>
+  <p class="drift">A centimetre of card <em>is a metre of house.</em></p>
+  <div class="chip"><b>DATUM +0.16M</b> <i></i> EYE HEIGHT 16 MM // 1:100</div>
+  <div class="turn-chip"><b>SCALE 1:100 &rarr; 1:1</b> <i></i> <span class="scan-r">SCAN R 38.0M</span></div>
+  <p class="turn-line"><span class="ln"><span>Then the card</span></span><span class="ln accent"><span>becomes the house.</span></span></p>
+  <div class="room"><span class="lv">LEVEL &plusmn;0.00M // LIVING</span><b>The living room</b><span class="nt">6.40 m to the ceiling. Oak floor, board-marked concrete, the south wall all glass.</span></div>
+  <div class="room study-room"><span class="lv">LEVEL +3.20M // STUDY</span><b>The study</b><span class="nt">+3.20, over the living room. The model is still on the desk.</span></div>
+  <p class="back-line">And back <em>to the desk.</em></p>
+  <div class="hint"><b>Scroll to shrink</b></div>
+</div>
+
+<main class="story">
+  <section style="height:140vh"><h2 class="sr">A white card model of a house on a slope, on an architect's desk at night</h2></section>
+  <section style="height:420vh"><h2 class="sr">Down to the height of the scale figure</h2></section>
+  <section style="height:440vh"><h2 class="sr">Then the card becomes the house, and the desk lamp becomes the sun</h2></section>
+  <section style="height:640vh"><h2 class="sr">Through the big glass into the living room, and up to the study</h2></section>
+  <section style="height:460vh"><h2 class="sr">And back to the desk</h2></section>
+  <section style="height:100vh"><h2 class="sr">Start a project</h2></section>
+</main>
+
+<section class="end" aria-label="Start a project">
+  <p class="eyebrow rise">Atelier 1:100 <i></i> Houses on difficult sites</p>
+  <h2><span class="ln"><span>Every house we build</span></span><span class="ln accent"><span>starts on this desk.</span></span></h2>
+  <p class="lede rise">Send us the site and what you need from it. We start in card, under a lamp, and the model stays on the desk until the house is built.</p>
+  <div class="ctas rise"><a class="btn" href="#">Start a project</a><a class="btn ghost" href="#">See the houses</a></div>
+  <a class="mail rise" href="#">Write to the studio</a>
+  <div class="meta rise"><span>House on a slope, 2026</span><span>Model at 1:100, mount board and greyboard</span><span>The studio is open Monday to Friday</span></div>
+</section>
+
+<div id="loader">
+  <div class="half up">
+    <span class="lbrand">Atelier 1:100</span>
+    <div class="score"><i></i></div>
+  </div>
+  <div class="half down">
+    <div class="lrow"><span>Scoring the first sheet</span><span class="pct">000</span></div>
+    <span class="lfoot">House on a slope &nbsp;/&nbsp; 1:100 &nbsp;/&nbsp; mount board, 1.5 mm</span>
+  </div>
+  <svg class="knife" viewBox="-8 -42 240 64" width="240" height="64" aria-hidden="true">
+    <defs>
+      <linearGradient id="kh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5e8ec"/><stop offset=".28" stop-color="#b8bec4"/><stop offset=".68" stop-color="#7c8288"/><stop offset="1" stop-color="#5a6066"/></linearGradient>
+      <linearGradient id="kb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fafbfd"/><stop offset=".55" stop-color="#cfd5db"/><stop offset="1" stop-color="#90969c"/></linearGradient>
+    </defs>
+    <ellipse cx="2" cy="1.6" rx="8.5" ry="1.8" fill="rgba(38,28,18,.38)"/>
+    <ellipse cx="0.6" cy="0.3" rx="1.8" ry="0.9" fill="#e85d04" opacity=".55"/>
+    <g transform="rotate(-34)">
+      <path d="M0 0 L31 -6.8 L45 -6.8 L45 3.6 L16.5 3.9 Q4.8 3.1 0 0 Z" fill="url(#kb)" stroke="#4f5459" stroke-width=".65"/>
+      <path d="M1.8 -0.2 L30.8 -6.3 L44.2 -6.3 L44.2 -3.4 L29 -3.4 Z" fill="#ffffff" opacity=".52"/>
+      <line x1="0.8" y1="0.15" x2="17.5" y2="3.7" stroke="#ffffff" stroke-width=".95" opacity=".95"/>
+      <rect x="27" y="-2.2" width="11" height="2.1" rx="1.05" fill="#dcd6ca" stroke="#6d7277" stroke-width=".55"/>
+      <rect x="40.5" y="-7.4" width="9.5" height="12.2" rx="1.3" fill="#82888e" stroke="#464a4f" stroke-width=".65"/>
+      <line x1="42" y1="-5.8" x2="48.5" y2="-5.8" stroke="#ffffff" stroke-width=".7" opacity=".6"/>
+      <rect x="49" y="-6.2" width="158" height="9.8" rx="2.4" fill="url(#kh)" stroke="#4c5055" stroke-width=".65"/>
+      <line x1="53" y1="-4.7" x2="202" y2="-4.7" stroke="#ffffff" stroke-width="1.0" opacity=".62"/>
+      <g stroke="#4e5257" stroke-width="1.05" opacity=".78">
+        <line x1="112" y1="-5.5" x2="112" y2="3.0"/><line x1="117" y1="-5.5" x2="117" y2="3.0"/><line x1="122" y1="-5.5" x2="122" y2="3.0"/><line x1="127" y1="-5.5" x2="127" y2="3.0"/><line x1="132" y1="-5.5" x2="132" y2="3.0"/><line x1="137" y1="-5.5" x2="137" y2="3.0"/><line x1="142" y1="-5.5" x2="142" y2="3.0"/><line x1="147" y1="-5.5" x2="147" y2="3.0"/><line x1="152" y1="-5.5" x2="152" y2="3.0"/><line x1="157" y1="-5.5" x2="157" y2="3.0"/><line x1="162" y1="-5.5" x2="162" y2="3.0"/><line x1="167" y1="-5.5" x2="167" y2="3.0"/>
+      </g>
+      <text x="64" y="0.6" font-family="IBM Plex Mono, monospace" font-size="4.8" letter-spacing=".9" fill="#3f4348">SWANN-MORTON No. 3</text>
+    </g>
+  </svg>
+</div>
+
+<script>
+// The loader paints before any module arrives. The page module takes it over once the scene is built.
+(() => {
+  const REC = /[?&]rec/.test(location.search);
+  const el = document.getElementById('loader');
+  const up = el.querySelector('.up'), down = el.querySelector('.down'), line = el.querySelector('.score i');
+  const knife = el.querySelector('.knife'), pct = el.querySelector('.pct'), row = el.querySelector('.lrow'), score = el.querySelector('.score');
+  const L = window.__loader = {
+    target: 0.06, shown: 0, done: false,
+    paint(p, lift, open) {
+      line.style.transform = `scaleX(${p})`;
+      pct.textContent = String(Math.round(p * 100)).padStart(3, '0');
+      const x = score.offsetLeft + score.offsetWidth * p, y = up.offsetHeight;
+      const k = innerWidth < 760 ? 0.62 : 1;
+      knife.style.transform = `translate3d(${x + lift * 70}px, ${y - lift * 90}px, 0) rotate(${-lift * 16}deg) scale(${k})`;
+      knife.style.opacity = 1 - lift;
+      row.style.opacity = 1 - lift;
+      const e = Math.min(1, open * 12);
+      up.style.boxShadow = e > 0 ? `0 3px 0 rgba(218,210,196,${0.95 * e}), 0 4px 0 rgba(70,60,50,${0.45 * e}), 0 12px 24px rgba(0,0,0,${0.28 * e})` : 'none';
+      down.style.boxShadow = e > 0 ? `0 -2px 0 rgba(232,225,212,${0.9 * e}), inset 0 1px 0 rgba(255,255,255,${0.8 * e})` : 'none';
+      up.style.transform = `translate3d(0, ${-open * 100}%, 0)`;
+      down.style.transform = `translate3d(0, ${open * 100}%, 0)`;
+      el.style.display = open >= 1 ? 'none' : '';
+    },
+  };
+  L.paint(0, 0, 0);
+  if (REC) return;
+  let last = performance.now(), age = 0;
+  const tick = (now) => {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; age += dt;
+    if (L.done) return;
+    const goal = Math.max(L.target, Math.min(0.3, age * 0.2));
+    L.shown = Math.min(goal, L.shown + dt * 0.62);
+    if (L.target >= 1 && L.shown >= 1 && age > 1.8) { L.shown = 1; L.done = true; }
+    L.paint(1 - (1 - L.shown) ** 2, 0, 0);
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+})();
+</script>
+<script type="module" src="js/page.js"></script>
+</body>
+</html>

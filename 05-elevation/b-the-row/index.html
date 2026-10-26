@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en" class="locked">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albion Row</title>
+  <meta name="description" content="A street elevation of six townhouses that takes the sun house by house and walks you to the open plot. Direction B of The Elevation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../engine/page.css" />
+</head>
+<body>
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="loader" id="loader">
+    <p>DWG // A-200 &nbsp;·&nbsp; Albion Row</p>
+    <p class="soft">Plotting street elevation 1:100 &nbsp;<span id="loadPct">0%</span></p>
+  </div>
+
+  <header class="topbar">
+    <a class="mark" href="#">Albion Row<small>Six Townhouses · A-200</small></a>
+    <a class="pill" href="#">Reserve plot 04</a>
+  </header>
+
+  <section class="hero" aria-label="Albion Row, street elevation">
+    <p class="kicker mono">Albion Row <span class="soft">&nbsp;·&nbsp; Street Elevation 1:100</span></p>
+    <h1><span class="mask"><span>Six front doors.</span></span><span class="mask"><span>Two still <em>open.</em></span></span></h1>
+  </section>
+
+  <div class="pins" id="pins" aria-hidden="true"></div>
+
+  <div class="tb tb-top" aria-hidden="true">
+    <div><span>Project</span>Albion Row</div>
+    <div><span>Drawing</span>Street elevation</div>
+    <div><span>Scale</span>1 : 100</div>
+    <div><span>Sheet</span>A-200</div>
+  </div>
+
+  <div class="hint" aria-hidden="true">Scroll <i></i></div>
+  <div id="beats"></div>
+  <main class="track" id="track"></main>
+
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+    } }
+  </script>
+  <script type="module" src="page.js"></script>
+</body>
+</html>
