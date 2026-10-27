@@ -1,8 +1,8 @@
-# 07 · Schedule Build
+# 05 · Schedule Build
 
 A construction programme in a dock along the bottom of the screen, and the site above it. Scroll the wheel and the today line moves: a fence goes up, the pit is dug, a crane lowers each frame, wall and roof panel as its bar fills. At handover the front door opens and you walk in. Scroll back and the house comes apart.
 
-[**Live**](https://sam1983aing.github.io/flat-to-3d/07-gantt-build/?dir=a) · [**Starter prompt**](PROMPT.md)
+[**Live**](https://sam1983aing.github.io/flat-to-3d/05-schedule-build/?dir=a) · [**Starter prompt**](PROMPT.md)
 
 The page opens at week 7, mid-build. `?dir=a&wk=0&open` starts on the full programme sheet at week 0 instead. Drag the chart to scrub, or press ▶ BUILD.
 

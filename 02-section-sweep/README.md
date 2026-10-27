@@ -1,8 +1,8 @@
-# 01 · Section Sweep
+# 02 · Section Sweep
 
 A section drawing of a house on a slope. Scroll and the lens opens into depth, a scan plane turns the ink into lit material, and the drawn sun angles become real sunbeams. Then you walk in through the cut, room by room, and come back out to the drawing.
 
-[**Live**](https://sam1983aing.github.io/flat-to-3d/01-section-sweep/) · [**Starter prompt**](PROMPT.md)
+[**Live**](https://sam1983aing.github.io/flat-to-3d/02-section-sweep/) · [**Starter prompt**](PROMPT.md)
 
 ## How it works
 

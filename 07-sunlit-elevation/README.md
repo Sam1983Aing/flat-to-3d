@@ -1,8 +1,8 @@
-# 05 · Sunlit Elevation
+# 07 · Sunlit Elevation
 
 The front elevation of a townhouse, drawn in ink with 45° hatching in every shadow. Scroll and the facade gains depth, then a sweep turns the paper into brick and not one shadow moves, because the hatching was the real shadow all along. The sun moves, the door opens, and you walk through the house to the courtyard.
 
-[**Live**](https://sam1983aing.github.io/flat-to-3d/05-elevation/a-one-door/) · [**Starter prompt**](PROMPT.md)
+[**Live**](https://sam1983aing.github.io/flat-to-3d/07-sunlit-elevation/a-one-door/) · [**Starter prompt**](PROMPT.md)
 
 Three takes on one engine:
 

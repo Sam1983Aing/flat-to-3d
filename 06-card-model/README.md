@@ -1,8 +1,8 @@
-# 02 · Card Model
+# 06 · Card Model
 
 A white card model of a house on an architect's desk at night. Scroll down to the little scale figure and the card turns into the real house, lit by the desk lamp as its sun. Walk inside, up to the study, where the same model sits on the desk. Then back out, and the lamp clicks off.
 
-[**Live**](https://sam1983aing.github.io/flat-to-3d/02-study-model/) · [**Starter prompt**](PROMPT.md)
+[**Live**](https://sam1983aing.github.io/flat-to-3d/06-card-model/) · [**Starter prompt**](PROMPT.md)
 
 ## How it works
 

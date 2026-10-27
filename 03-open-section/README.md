@@ -1,8 +1,8 @@
-# 04 · Open Section
+# 03 · Open Section
 
 A flat 1:100 section of a house on three levels plots itself. Scroll and the lens opens while the cut keeps its exact size, so the rooms behind it fall back into a sectional perspective. A scan turns the ink into material and sunlight, then the camera visits the house floor by floor, always facing the cut, and ends on the section in colour.
 
-[**Live**](https://sam1983aing.github.io/flat-to-3d/04-sectional-perspective/) · [**Starter prompt**](PROMPT.md)
+[**Live**](https://sam1983aing.github.io/flat-to-3d/03-open-section/) · [**Starter prompt**](PROMPT.md)
 
 Two takes on the same code: `?dir=a` opens the lens and tours room by room (the default), `?dir=c` dives to the kitchen and goes down the stair.
 

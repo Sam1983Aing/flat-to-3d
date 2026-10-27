@@ -1,8 +1,8 @@
-# 06 · Exploded House
+# 01 · Exploded House
 
 An exploded axonometric of a timber house, plotted in ink. Scroll and the six layers land one by one in building order. Then the lens widens until the drawing becomes a room, the glass door slides open, and you walk inside and up to the loft.
 
-[**Live**](https://sam1983aing.github.io/flat-to-3d/06-exploded-axo/?dir=a) · [**Starter prompt**](PROMPT.md)
+[**Live**](https://sam1983aing.github.io/flat-to-3d/01-exploded-house/?dir=a) · [**Starter prompt**](PROMPT.md)
 
 Three takes on the same code:
 
