@@ -11,12 +11,12 @@ Every demo comes with its full code and a starter prompt to build your own versi
 | | Technique | What happens | Code | Prompt |
 |---|---|---|---|---|
 | 01 | **Section Sweep** | A section drawing opens into depth, a scan turns the ink into material and the drawn sun angles into real sunbeams. Then you walk in through the cut. | [01-section-sweep](01-section-sweep/) | [prompt](01-section-sweep/PROMPT.md) |
-| 02 | **Card Model to Real House** | A white card model on a desk at night. Dive down to the scale figure and the card turns into the real house, with the desk lamp as its sun. | [02-study-model](02-study-model/) | [prompt](02-study-model/PROMPT.md) |
-| 03 | **Sequence Sheet Time-Lapse** | Six drawings of one house, stage by stage. Dive into the first one and walk the site while it goes up, week by week, until handover. | [03-sequence-sheet](03-sequence-sheet/) | [prompt](03-sequence-sheet/PROMPT.md) |
-| 04 | **Sectional Perspective** | A flat section plots itself. The lens opens while the cut keeps its size, and the camera visits each floor from the cut. | [04-sectional-perspective](04-sectional-perspective/) | [prompt](04-sectional-perspective/PROMPT.md) |
+| 02 | **Card Model** | A white card model on a desk at night. Dive down to the scale figure and the card turns into the real house, with the desk lamp as its sun. | [02-study-model](02-study-model/) | [prompt](02-study-model/PROMPT.md) |
+| 03 | **Build Time-Lapse** | Six drawings of one house, stage by stage. Dive into the first one and walk the site while it goes up, week by week, until handover. | [03-sequence-sheet](03-sequence-sheet/) | [prompt](03-sequence-sheet/PROMPT.md) |
+| 04 | **Open Section** | A flat section plots itself. The lens opens while the cut keeps its size, and the camera visits each floor from the cut. | [04-sectional-perspective](04-sectional-perspective/) | [prompt](04-sectional-perspective/PROMPT.md) |
 | 05 | **Sunlit Elevation** | A front elevation whose hatching is the real shadow. A sweep turns it into brick, the sun moves, the door opens and you walk in. | [05-elevation](05-elevation/) | [prompt](05-elevation/PROMPT.md) |
-| 06 | **Exploded Axo Assembly** | An exploded axo lands layer by layer in building order. Then the lens widens to eye level and you walk inside. | [06-exploded-axo](06-exploded-axo/) | [prompt](06-exploded-axo/PROMPT.md) |
-| 07 | **The Gantt Builds the House** | Scroll the construction programme and the house builds itself bar by bar, crane and all. Then the front door opens. | [07-gantt-build](07-gantt-build/) | [prompt](07-gantt-build/PROMPT.md) |
+| 06 | **Exploded House** | An exploded axo lands layer by layer in building order. Then the lens widens to eye level and you walk inside. | [06-exploded-axo](06-exploded-axo/) | [prompt](06-exploded-axo/PROMPT.md) |
+| 07 | **Schedule Build** | Scroll the construction programme and the house builds itself bar by bar, crane and all. Then the front door opens. | [07-gantt-build](07-gantt-build/) | [prompt](07-gantt-build/PROMPT.md) |
 
 Each folder has a short README on how its technique works.
 

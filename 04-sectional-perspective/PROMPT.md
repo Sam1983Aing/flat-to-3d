@@ -1,4 +1,4 @@
-# Starter prompt · Sectional Perspective
+# Starter prompt · Open Section
 
 The prompt I would start with to rebuild this demo. It won't give you my page. It gets you a first version of the idea, and then the real work starts.
 

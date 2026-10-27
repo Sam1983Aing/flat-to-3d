@@ -1,4 +1,4 @@
-# 07 · The Gantt Builds the House
+# 07 · Schedule Build
 
 A construction programme in a dock along the bottom of the screen, and the site above it. Scroll the wheel and the today line moves: a fence goes up, the pit is dug, a crane lowers each frame, wall and roof panel as its bar fills. At handover the front door opens and you walk in. Scroll back and the house comes apart.
 

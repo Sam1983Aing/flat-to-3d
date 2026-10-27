@@ -1,4 +1,4 @@
-# 03 · Sequence Sheet Time-Lapse
+# 03 · Build Time-Lapse
 
 A construction sequence sheet: six drawings of one house, from the hole in the ground to handover. Scroll into drawing 01 and the real site pours in behind the ink. Then the scroll becomes the calendar, and you walk the site while the house goes up around you, week by week, through a forest of props at week 18, until handover day.
 

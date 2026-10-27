@@ -1,4 +1,4 @@
-# 04 · Sectional Perspective
+# 04 · Open Section
 
 A flat 1:100 section of a house on three levels plots itself. Scroll and the lens opens while the cut keeps its exact size, so the rooms behind it fall back into a sectional perspective. A scan turns the ink into material and sunlight, then the camera visits the house floor by floor, always facing the cut, and ends on the section in colour.
 

@@ -1,4 +1,4 @@
-# 02 · Card Model to Real House
+# 02 · Card Model
 
 A white card model of a house on an architect's desk at night. Scroll down to the little scale figure and the card turns into the real house, lit by the desk lamp as its sun. Walk inside, up to the study, where the same model sits on the desk. Then back out, and the lamp clicks off.
 

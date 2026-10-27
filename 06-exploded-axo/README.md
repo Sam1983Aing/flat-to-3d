@@ -1,4 +1,4 @@
-# 06 · Exploded Axo Assembly
+# 06 · Exploded House
 
 An exploded axonometric of a timber house, plotted in ink. Scroll and the six layers land one by one in building order. Then the lens widens until the drawing becomes a room, the glass door slides open, and you walk inside and up to the loft.
 
