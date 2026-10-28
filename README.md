@@ -33,7 +33,7 @@ These came after my floor plan demo, a flat plan that builds itself into a house
 - three.js from a CDN, with plain HTML, CSS and JavaScript. No build step and nothing to install.
 - No image files and no 3D models. Every wall, material and piece of furniture is made in code, so each demo is between about 100 and 190 KB.
 - In five of the seven, the flat drawing is the real 3D model seen through a very long lens, which makes it look flat. Opening the lens is what turns it into 3D.
-- Built with Claude Code and Opus 5.5, then polished in Google Antigravity with Gemini 4 Argon.
+- All built with Opus 5.5.
 
 ## Run it on your computer
 
